@@ -54,7 +54,7 @@ class Login extends Component {
   // when user hit the login button
   handleLogin() {
     const { username, password } = this.state;
-    if (password !== '' && username !== '' && username.length <= 50 && password.length <= 20) {
+    if (password !== '' && username !== '' && username.length <= 100 && password.length <= 20) {
       const payload = { username, password };
       console.log('payload in handle login: ', payload);
       setTimeout(async () => {
@@ -63,7 +63,7 @@ class Login extends Component {
     }
     else {
       // check if input are valid or not
-      if (username.length > 50 || password.length > 20) {
+      if (username.length > 100 || password.length > 20) {
         this.setState({ loginErrorMessage: 'username or password length is too long (max 50 and 20)' });
       }
       else if (username === '' || password === '') {

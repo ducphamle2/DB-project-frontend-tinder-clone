@@ -3,6 +3,7 @@ import { Item, Input } from 'native-base';
 import LoginStyle from '../assets/styles/LoginStyle';
 import { connect } from 'react-redux';
 import UserInfoAction from '../redux/actions/UserInfoAction';
+import StringUtil from '../utils/StringUtils'
 import {
     Text,
     View,
@@ -18,6 +19,8 @@ import {
 } from 'react-native';
 import api from '../config/Api';
 import validation from '../utils/validations/Validation';
+import DataAsync from '../utils/DataAsync';
+import { myLoginConstant } from '../utils/Constants';
 
 class Profile extends Component {
     constructor(props) {
@@ -29,13 +32,32 @@ class Profile extends Component {
             city: '',
             profileErrorMessage: '',
         }
+
+        this.onHandleSetInfo = this.onHandleSetInfo.bind(this);
     }
 
     // this will be used to check state values before rendering.
     // send username with token to receive information
-    componentWillMount() {
+    async componentWillMount() {
         const username = this.props.navigation.getParam('username');
         console.log('before rendering: ', username);
+        // we need to call api to get user info first, after that use data async to store.
+        const age = await DataAsync.getData(myLoginConstant.REMEMBER_AGE);
+        const phoneNumber = await DataAsync.getData(myLoginConstant.REMEMBER_PHONENUM);
+        const gender = await DataAsync.getData(myLoginConstant.REMEMBER_GENDER);
+        const city = await DataAsync.getData(myLoginConstant.REMEMBER_CITY);
+        if (StringUtil.isEmpty(age) && StringUtil.isEmpty(phoneNumber) &&
+            StringUtil.isEmpty(city) && StringUtil.isEmpty(gender)) {
+            DataAsync.setData(myLoginConstant.REMEMBER_AGE, ''); // if they undefined then set to initial state
+            DataAsync.setData(myLoginConstant.REMEMBER_PHONENUM, '');
+            DataAsync.setData(myLoginConstant.REMEMBER_GENDER, '');
+            DataAsync.setData(myLoginConstant.REMEMBER_CITY, '');
+        }
+        else {
+            // set current state to what we have stored previously
+            this.setState({ age: age, phoneNumber: phoneNumber, gender: gender, city: city });
+            console.log('existing user_info: ', { age, phoneNumber, gender, city });
+        }
     }
 
     renderError() {
@@ -54,24 +76,38 @@ class Profile extends Component {
         const { age, phoneNumber, gender, city } = this.state;
         // age and phone number must be numbers
         if (validation.isNumber(age) && validation.isNumber(phoneNumber)) {
-            this.setState({profileErrorMessage: ''});
+            this.setState({ profileErrorMessage: '' });
             const username = this.props.navigation.getParam('username');
             const payload = { username, age, phoneNumber, gender, city };
             console.log('Before calling api');
-            api.setInfo(payload, this.onHandleSetInfo.bind());
+            //api.setInfo(payload, this.onHandleSetInfo.bind());
+            this.onHandleSetInfo();
         }
         else {
-            this.setState({ profileErrorMessage: 'Age and phone number inputs invalid'});
+            this.setState({ profileErrorMessage: 'Age and phone number inputs invalid' });
         }
 
     }
 
-    onHandleGetInfo(isSuccess, response, error) {
-
+    onHandleSetInfo(isSuccess, response, error) {
+        const { age, phoneNumber, gender, city } = this.state;
+        DataAsync.setData(myLoginConstant.REMEMBER_AGE, age); // if they undefined then set to initial state
+        DataAsync.setData(myLoginConstant.REMEMBER_PHONENUM, phoneNumber);
+        DataAsync.setData(myLoginConstant.REMEMBER_GENDER, gender);
+        DataAsync.setData(myLoginConstant.REMEMBER_CITY, city);
+        console.log('user info after confirm: ', { age, phoneNumber, gender, city });
+        Alert.alert(
+            'Notification',
+            'You have edited your profile successfully',
+            [
+                { text: 'OK', onPress: () => { console.log('OK pressed') }, style: 'cancel' },
+            ],
+            { cancelable: false }
+        );
     }
 
     handleCancel() {
-        const {navigate} = this.props.navigation;
+        const { navigate } = this.props.navigation;
         navigate('Drawer'); // get back to the drawer screen
     }
 
@@ -81,7 +117,7 @@ class Profile extends Component {
         const { loginButtonText, loginButton, loginText, signUpButton, signUpButtonText, findButtonText, findButton } = LoginStyle;
         return (
             <ScrollView keyboardShouldPersistTaps="always">
-                <View style={{ flex: 1 , marginTop: 40}}>
+                <View style={{ flex: 1, marginTop: 40 }}>
                     <View style={{
                         flex: 1,
                         justifyContent: 'flex-start',

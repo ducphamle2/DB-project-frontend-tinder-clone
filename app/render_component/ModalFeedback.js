@@ -23,6 +23,7 @@ export default class AddModal extends Component {
             header: '',
             content: '',
             addErrorMessage: '',
+            isClosed: false,
         }
     }
 
@@ -32,17 +33,17 @@ export default class AddModal extends Component {
 
     handleAdding() {
         console.log('add button hit !!!');
-        const { username } = this.state;
-        if (username !== '' && username.length <= 50) {
+        const { header, content } = this.state;
+        if (header !== '' && header.length <= 50 && content !== '' && content.length <= 200) {
             this.setState({ addErrorMessage: '' }); // state is reset
-            const payload = { username };
+            const payload = { header };
             console.log('payload in handle login: ', payload);
             setTimeout(async () => {
                 await api.addUser(payload, this.onHandleAddUser.bind(this));
             }, 200);
         }
         else {
-            this.setState({ addErrorMessage: 'Invalid username input !' });
+            this.setState({ addErrorMessage: 'Invalid header or content input !' });
         }
     }
 
@@ -65,17 +66,23 @@ export default class AddModal extends Component {
 
     render() {
         const { header, content } = this.state;
-        const { loginButtonText, loginButton } = LoginStyle;
+        const { loginButtonText, loginButton, loginText } = LoginStyle;
         const styles = StyleSheet.create({
             textAreaContainer: {
                 borderBottomColor: 'grey',
-                borderWidth: 1,
+                borderBottomWidth: 1,
                 padding: 5
             },
             textArea: {
                 height: 150,
-                width: 40,
-                justifyContent: "flex-start"
+                marginLeft: 30,
+                marginRight: 30,
+                marginTop: 10,
+                borderWidth: 1,
+                borderColor: 'grey',
+                justifyContent: 'flex-start',
+                flexDirection: 'column',
+                alignItems: 'baseline',
             }
         })
         return (
@@ -105,13 +112,19 @@ export default class AddModal extends Component {
                     }}>
                     Send your feedback
                 </Text>
+                <Text style={[{
+                    marginLeft: 30,
+                    marginTop: 12
+                },
+                    loginText]}>
+                    Header
+                        </Text>
                 <TextInput
                     style={{
                         height: 40,
                         borderBottomColor: 'gray',
                         marginLeft: 30,
                         marginRight: 30,
-                        marginTop: 20,
                         marginBottom: 10,
                         borderBottomWidth: 1,
                     }}
@@ -120,27 +133,33 @@ export default class AddModal extends Component {
                     value={header}
                     maxLength={50}>
                 </TextInput>
-                <View style={styles.textAreaContainer} >
-                    <TextInput
-                        style={styles.textArea}
-                        underlineColorAndroid="transparent"
-                        placeholder="Type something"
-                        placeholderTextColor="grey"
-                        numberOfLines={10}
-                        multiline={true}
-                        onChangeText= {txt => this.setState({content: txt})}
-                        value={content}
-                        maxLength={100}
-                    />
-                </View>
+                <Text style={[{
+                    marginLeft: 30,
+                    marginTop: 15
+                },
+                    loginText]}>
+                    Content
+                        </Text>
+                <TextInput
+                    style={styles.textArea}
+                    underlineColorAndroid="transparent"
+                    placeholder="Type something"
+                    placeholderTextColor="grey"
+                    numberOfLines={10}
+                    multiline={true}
+                    onChangeText={txt => this.setState({ content: txt })}
+                    value={content}
+                    maxLength={250}
+                />
+
                 {this.renderError()}
-                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                     <TouchableHighlight
                         disabled={false}
                         style={{
-                            width: 60,
-                            height: 30,
-                            backgroundColor: '#3399CC',
+                            width: 100,
+                            height: 50,
+                            backgroundColor: '#DB1E4A',
                             shadowColor: '#D2D2D2',
                             shadowOffset: { width: 0, height: 3 },
                             shadowRadius: 6,
@@ -148,14 +167,16 @@ export default class AddModal extends Component {
                             flexDirection: 'row',
                             justifyContent: 'center',
                             alignItems: 'center',
+                            marginBottom: 40
 
                         }}
                         onPress={this.handleAdding.bind(this)}
                     >
                         <Text style={{
                             color: 'white',
-                            fontSize: 16,
+                            fontSize: 20,
                             fontFamily: 'Josefin Sans',
+                            fontWeight: 'bold',
                         }}>Add</Text>
                     </TouchableHighlight>
                 </View>

@@ -54,6 +54,10 @@ class SideBar extends Component {
     console.log('Confirm logout !!!!!!!!!!!!');
     DataAsync.removeData(myLoginConstant.REMEMBER_USERNAME);
     DataAsync.removeData(myLoginConstant.REMEMBER_ACCOUNT);
+    DataAsync.removeData(myLoginConstant.REMEMBER_AGE);
+    DataAsync.removeData(myLoginConstant.REMEMBER_PHONENUM);
+    DataAsync.removeData(myLoginConstant.REMEMBER_GENDER);
+    DataAsync.removeData(myLoginConstant.REMEMBER_CITY);
     DataAsync.removeData(myLoginConstant.TOKEN);
     dispatch(LoginAction.clearLoginState());
   }

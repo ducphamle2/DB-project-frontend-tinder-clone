@@ -32,6 +32,7 @@ class Register extends Component {
 			username: '',
 			password: '',
 			passwordTwo: '',
+			email: '',
 			loginErrorMessage: '',
 		}
 	}
@@ -51,11 +52,12 @@ class Register extends Component {
 
 	handleRegister() {
 		const { dispatch } = this.props;
-		const { username, password, passwordTwo } = this.state;
+		const { username, password, passwordTwo, email } = this.state;
 		//api.register(payload, this.onHandle.bind(this));
 		// check if all the inputs are valid or not
-		if (password === passwordTwo && password !== '' && username !== '' && username.length <= 50 && password.length <= 20) {
-			const payload = { username, password };
+		if (password === passwordTwo && password !== '' && username !== '' && username.length <= 50 && password.length <= 20
+		&& email !== '' && email.length <= 100) {
+			const payload = { email, username, password };
 			console.log('payload in handle register: ', payload);
 			setTimeout(() => {
 				Alert.alert(
@@ -77,11 +79,11 @@ class Register extends Component {
 		}
 		else {
 			// check if input are valid or not
-			if (username.length > 50 || password.length > 20) {
-				this.setState({ loginErrorMessage: 'Username or password length is too long (max 50 and 20)' });
+			if (username.length > 50 || password.length > 20 || email.length > 100) {
+				this.setState({ loginErrorMessage: 'Username, password or email length is too long (max 50 and 20)' });
 			}
-			else if (username === '' || password === '') {
-				this.setState({ loginErrorMessage: 'Please type username or password' });
+			else if (username === '' || password === '' || email === '') {
+				this.setState({ loginErrorMessage: 'Please type username, password and email' });
 			}
 			else if (passwordTwo === '') {
 				this.setState({ loginErrorMessage: 'Please type again your password' });
@@ -129,7 +131,8 @@ class Register extends Component {
 
 	render() {
 		const { loginButtonText, loginButton, loginText, signUpButton, signUpButtonText, findButtonText, findButton } = LoginStyle;
-		const { username, password, passwordTwo } = this.state;
+		const { username, password, passwordTwo, email } = this.state;
+		const temp = 'Type something ...';
 		return (
 			<View style={{ flex: 1, flexDirection: 'column' }}>
 				<Header
@@ -147,7 +150,7 @@ class Register extends Component {
 					flex: 1,
 					justifyContent: 'center',
 					alignItems: 'flex-start',
-					marginTop: 100,
+					marginTop: 50,
 				}}>
 					<Text style={[{
 						marginLeft: 55,
@@ -161,7 +164,30 @@ class Register extends Component {
 						<Input
 							autoCorrect={false}
 							autoCapitalize="none"
-							placeholder={'username'}
+							placeholder={temp}
+							inputFontSize={10}
+							inputHeightBase={10}
+							//lineHeight={10}
+							returnKeyType="next"
+							onChangeText={txt => this.setState({ email: txt })}
+							value={email}
+							maxLength={50}
+						/>
+					</Item>
+
+					<Text style={[{
+						marginLeft: 55,
+						marginTop: 12
+					},
+						loginText]}>
+						Username
+                </Text>
+					{/* border color is the color line under the Input component */}
+					<Item style={{ marginLeft: 50, marginRight: 50, borderColor: '#3FA1F6' }}>
+						<Input
+							autoCorrect={false}
+							autoCapitalize="none"
+							placeholder={temp}
 							inputFontSize={10}
 							inputHeightBase={10}
 							//lineHeight={10}
@@ -171,6 +197,7 @@ class Register extends Component {
 							maxLength={50}
 						/>
 					</Item>
+
 					<Text style={[{
 						marginLeft: 55,
 						marginTop: 12
@@ -181,7 +208,7 @@ class Register extends Component {
 
 					<Item style={{ marginBottom: 5, marginLeft: 50, marginRight: 50, borderColor: '#3399CC' }}>
 						<Input
-							placeholder={'password'}
+							placeholder={temp}
 							inputHeightBase={10}
 							inputFontSize={10}
 							secureTextEntry
@@ -201,7 +228,7 @@ class Register extends Component {
 
 					<Item style={{ marginBottom: 5, marginLeft: 50, marginRight: 50, borderColor: '#3399CC' }}>
 						<Input
-							placeholder={'password'}
+							placeholder={temp}
 							inputHeightBase={10}
 							inputFontSize={10}
 							secureTextEntry

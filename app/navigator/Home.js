@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, Dimensions, Alert } from 'react-native';
 import images from '../assets/image_source/Images';
-import Swipeout from 'react-native-swipeout'; 
+import Swipeout from 'react-native-swipeout';
 import ActionButton from 'react-native-action-button'; // doc: https://github.com/mastermoo/react-native-action-button
 import AddModal from '../render_component/AddModal';
 
@@ -26,6 +26,9 @@ const styles = StyleSheet.create({
 });
 
 const data = ['Duc Pham le', 'Hong Anh Nguyen', 'Noob1', 'noob2', 'noob3', 'noob4', 'noob5', 'noob6', 'noob7', 'noob8'];
+// this will be username
+// to get list of friends => componentwillmount will call api to request to the table of friends or possible 
+// liked people according to their location (send to server username and location and preferred gender ?)
 const flatStyles = StyleSheet.create({
 	flatListItem: {
 		color: 'black',
@@ -66,7 +69,7 @@ class FlatListItem extends Component {
 		}
 	}
 	render() {
-		const {item, refresh} = this.props;
+		const { item, refresh } = this.props;
 		const swipeSettings = {
 			autoClose: true,
 			onClose: (secId, rowId, direction) => {
@@ -75,6 +78,7 @@ class FlatListItem extends Component {
 				}
 			},
 			onOpen: (secId, rowId, direction) => {
+				console.log('item of this row: ', item.item); // get username
 				this.setState({ activeRow: item.item });
 			},
 			right: [{
@@ -118,7 +122,7 @@ class FlatListItem extends Component {
 				backgroundColor: '#3FA1F6'
 			}],
 			rowId: this.props.item.index,
-			sectionId: 1
+			sectionId: 1,
 		}
 		console.log('before rendering flatlist');
 		return (
@@ -158,7 +162,7 @@ export default class Home extends Component {
 
 	// this function will be used to set state which makes the Home component render again - refresh our list
 	refreshFlatList = () => {
-		this.setState({isDeleted: true});
+		this.setState({ isDeleted: true });
 	}
 
 	render() {
@@ -179,7 +183,7 @@ export default class Home extends Component {
 				>
 				</FlatList>
 				<ActionButton buttonColor='#DF2929' onPress={this.handleAddButton.bind()}>
-					
+
 				</ActionButton>
 
 				<AddModal ref={'addModal'} parentFlatList={this}>
