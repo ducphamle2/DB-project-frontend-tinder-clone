@@ -26,8 +26,6 @@ const styles = StyleSheet.create({
     },
 });
 
-// these will be the headers
-const data = ['App quality', 'App performance', 'report on bugs', 'Cannot sign in', 'Noob design', 'Briliant app'];
 const flatStyles = StyleSheet.create({
     flatListItem: {
         color: 'black',
@@ -68,21 +66,64 @@ class FlatListItem extends React.Component {
             activeIndex: '',
         }
         //this.handleOnOpen = this.handleOnOpen.bind(this);
+        this.handleParentComponent = this.handleParentComponent.bind(this);
+    }
+
+    handleParentComponent() {
+        const { item } = this.props;
+        if (this.props.flag) { // if the caller is from Home             
+            const response = [{ // the data will be retrieved through api calling
+                'name': 'Duc Pham le',
+                'age': '20',
+                'gender': 'male',
+            },
+            {
+                'name': 'Hong Anh Nguyen',
+                'age': '19',
+                'gender': 'female',
+            },
+            ];
+            let name = null;
+            let i = 0;
+            for (i = 0; i < response.length; i++) {
+                if (item.item === response[i].name) {
+                    //header = response[i].header;
+                    name = response[i];
+                }
+            }
+            console.log('response[i]', name);
+            this.props.navigation.navigate('UserDetail', name);
+        }
+        else { // if the caller is from Feedback
+            const response = [{
+                'header': 'App quality',
+                'response': 'Noobaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            },
+            {
+                'header': 'App performance',
+                'response': 'Noob2',
+            }, {
+                'header': 'report on bugs',
+                'response': 'Noob3',
+            }];
+            let header = null;
+            let i = 0;
+            for (i = 0; i < response.length; i++) {
+                console.log('response: ', response[i])
+                if (item.item === response[i].header) {
+                    //header = response[i].header;
+                    header = response[i];
+                }
+            }
+            console.log('response[i]', header);
+            this.props.navigation.navigate('FeedbackDetail', header);
+            //this.props.navigation.navigate('FeedbackDetail', header); Send header to call api in the detail
+        }
     }
 
     render() {
-        const { item, refresh } = this.props;
-        const response = [{
-            'header': 'App quality',
-            'response': 'Noobaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        },
-        {
-            'header': 'App performance',
-            'response': 'Noob2',
-        }, {
-            'header': 'report on bugs',
-            'response': 'Noob3',
-        }];
+        const { item, refresh, data } = this.props;
+        // these will be the headers
         const swipeSettings = {
             autoClose: true,
             onClose: (secId, rowId, direction) => {
@@ -91,18 +132,6 @@ class FlatListItem extends React.Component {
                 }
             },
             onOpen: (secId, rowId, direction) => {
-                console.log('inside the loop')
-                let header = null;
-                let i = 0;
-                for (i = 0; i < response.length; i++) {
-                    if (item.item === response[i].header) {
-                        //header = response[i].header;
-                        header = response[i];
-                    }
-                }
-                console.log('response[i]', header);
-                this.props.navigation.navigate('FeedbackDetail', header);
-                //this.props.navigation.navigate('FeedbackDetail', header); Send header to call api in the detail
             },
             right: [{
                 onPress: () => {
@@ -122,6 +151,11 @@ class FlatListItem extends React.Component {
                     );
                 },
                 text: 'Delete', type: 'delete',
+                backgroundColor: '#3FA1F6'
+            },
+            {
+                onPress: this.handleParentComponent,
+                text: 'View', type: 'view',
                 backgroundColor: '#3FA1F6'
             }],
             left: [{

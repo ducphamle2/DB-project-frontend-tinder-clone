@@ -5,6 +5,7 @@ import Swipeout from 'react-native-swipeout';
 import ActionButton from 'react-native-action-button'; // doc: https://github.com/mastermoo/react-native-action-button
 import ModalFeedback from '../render_component/ModalFeedback';
 import FlatListItem from '../navigation_components/FlatListItem';
+import FakeData from '../config/FakeData';
 
 const { width } = Dimensions.get('window');
 
@@ -27,7 +28,6 @@ const styles = StyleSheet.create({
 });
 
 // these will be the headers
-const data = ['App quality', 'App performance', 'report on bugs', 'Cannot sign in', 'Noob design', 'Briliant app'];
 
 /* tutorial for using FlatList: https://www.youtube.com/watch?v=NZMp5JLSIAM
 	 It has two main props: data and renderItem.
@@ -55,13 +55,13 @@ export default class Feedback extends Component {
 		return (
 			<View style={{ flex: 1 }}>
 				<FlatList
-					data={data}
+					data={FakeData.dataTwo}
 					renderItem={(item, index) => {
 						console.log('Item: ', item.item); //item is an object which consists of item name, item index, ...
 						console.log('index: ', item.index);
 						return (
 							// parentFlatList
-							<FlatListItem item={item} index={index} refresh={this}>
+							<FlatListItem item={item} index={index} refresh={this} flag={false} data={FakeData.dataTwo}>
 
 							</FlatListItem>
 						);

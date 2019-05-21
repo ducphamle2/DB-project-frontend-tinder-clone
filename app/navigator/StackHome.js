@@ -4,6 +4,7 @@ import Profile from '../navigation_components/Profile'
 import Feedback from '../navigation_components/Feedback'
 import Example from '../navigation_components/Example'
 import FeedbackDetail from '../navigation_components/FeedbackDetail';
+import UserDetail from '../navigation_components/UserDetail';
 
 const RootStack = createStackNavigator({
     StackNavigator: {
@@ -66,6 +67,23 @@ const RootStack = createStackNavigator({
     },
     FeedbackDetail: {
         screen: FeedbackDetail,
+        navigationOptions: ({ navigation }) => ({
+            title: 'Feedback Details',
+            headerTitleStyle: {
+                fontWeight: 'bold',
+                textAlign: 'center',
+                flex: 1,
+                marginRight: 60
+            },
+            headerStyle: {
+                backgroundColor: '#3FA1F6',
+                zIndex: 100
+            },
+            headerTintColor: '#FFFFFF',
+        })
+    },
+    UserDetail: {
+        screen: UserDetail,
         navigationOptions: ({ navigation }) => ({
             title: 'Feedback Details',
             headerTitleStyle: {

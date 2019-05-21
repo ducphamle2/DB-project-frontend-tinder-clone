@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.chatapp_mobile">
+  package="com.chatapp_mobile"
+android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
