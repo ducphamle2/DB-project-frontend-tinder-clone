@@ -9,6 +9,7 @@ import settingIcon from '../images/setting.png'
 import helpIcon from '../images/help.png'
 import logoutIcon from '../images/logout.png'
 import menuIcon from '../images/menuIcon.png'
+import camera from '../images/camera.png'
 
 const images = {
     loginBackGround,
@@ -21,7 +22,8 @@ const images = {
     settingIcon,
     helpIcon,
     logoutIcon,
-    menuIcon
+    menuIcon,
+    camera,
 }
 
 export default images;

@@ -24,8 +24,8 @@ class SideBar extends Component {
 
   getProfile() {
     const { navigate } = this.props.navigation;
-    const { username } = this.props;
-    navigate('Profile', {username});
+    const { email } = this.props;
+    navigate('Profile', { email });
   }
 
   getFeedback() {
@@ -34,7 +34,7 @@ class SideBar extends Component {
   }
 
   getSettings() {
-    const {navigate} = this.props.navigation;
+    const { navigate } = this.props.navigation;
     navigate('Example');
   }
 
@@ -44,8 +44,8 @@ class SideBar extends Component {
     So in order to logout, we just need to set isLoginSuccess to false, and other information to null to reset the app.
   */
   logout() {
-    const { username } = this.props;
-    console.log('username logout: ========', username);
+    const { email } = this.props;
+    console.log('email logout: ========', email);
     this.setState({ isConfirm: true });
   }
 
@@ -68,8 +68,8 @@ class SideBar extends Component {
   }
 
   render() {
-    const { username } = this.props;
-    console.log("Username: ", username)
+    const { email } = this.props;
+    console.log("email: ", email)
     const { container, sbInfo, userInfoNav } = styles;
     const { isConfirm } = this.state;
     return (
@@ -86,11 +86,12 @@ class SideBar extends Component {
             >
               <View />
               <View style={userInfoNav}>
-                {!StringUtil.isEmpty(username) ? (
+                {!StringUtil.isEmpty(email) ? (
                   <ImageProfile
                     url={images.user}
+                    cameraUrl={images.camera}
                     content={
-                      !StringUtil.isEmpty(username)
+                      !StringUtil.isEmpty(email)
                         ? 'Phạm Lê Đức'
                         : ''
                     }
@@ -145,5 +146,5 @@ class SideBar extends Component {
 // these two variables will become SideBar's props
 export default connect(state => ({
   isLoginSuccess: state.LoginReducer.isLoginSuccess,
-  username: state.LoginReducer.username,
+  email: state.LoginReducer.email,
 }))(SideBar);

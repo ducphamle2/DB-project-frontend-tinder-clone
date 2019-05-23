@@ -36,7 +36,8 @@ export default class AddModal extends Component {
         const { header, content } = this.state;
         if (header !== '' && header.length <= 50 && content !== '' && content.length <= 200) {
             this.setState({ addErrorMessage: '' }); // state is reset
-            const payload = { header };
+            //const payload = { header, content }; //normally this one will be used
+            const payload = { content };
             console.log('payload in handle login: ', payload);
             setTimeout(async () => {
                 await api.addUser(payload, this.onHandleAddUser.bind(this));
@@ -48,7 +49,28 @@ export default class AddModal extends Component {
     }
 
     onHandleAddUser(isSuccess, response, error) {
-
+        if (isSuccess) {
+            console.log('success');
+            Alert.alert(
+                'Notification',
+                'Your feedback has been recorded. Thank you for using our app !!',
+                [
+                    { text: 'OK', onPress: () => { console.log('OK pressed') }, style: 'cancel' },
+                ],
+                { cancelable: false }
+            );
+        }
+        else {
+            Alert.alert(
+                'Notification',
+                'Sorry, there is something wrong, your feedback cannot be sent !',
+                [
+                    { text: 'OK', onPress: () => { console.log('OK pressed') }, style: 'cancel' },
+                ],
+                { cancelable: false }
+            );
+            console.log('error');
+        }
     }
 
 

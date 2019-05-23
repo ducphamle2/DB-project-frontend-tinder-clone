@@ -5,8 +5,10 @@ import Swipeout from 'react-native-swipeout';
 import ActionButton from 'react-native-action-button'; // doc: https://github.com/mastermoo/react-native-action-button
 import AddModal from '../render_component/AddModal';
 import FlatListItem from '../navigation_components/FlatListItem';
-import SearchInput from 'react-native-search-filter';
+import SearchInput, { createFilter } from 'react-native-search-filter';
 import FakeData from '../config/FakeData';
+import { ScrollView } from 'react-native-gesture-handler';
+const KEYS_TO_FILTERS = ['name']; // key used in filter
 
 const { width } = Dimensions.get('window');
 
@@ -37,12 +39,9 @@ export default class Home extends Component {
 		super(props);
 		this.state = {
 			isDeleted: false,
-			loading: false,
 			data: '',
-			error: null,
 		}
 		this.handleAddButton = this.handleAddButton.bind(this);
-		this.arrayholder = FakeData.data;
 	}
 
 	handleAddButton() {
@@ -53,23 +52,6 @@ export default class Home extends Component {
 	refreshFlatList = () => {
 		this.setState({ isDeleted: true });
 	}
-
-	searchFilterFunction = text => {
-		this.setState({
-			value: text,
-		});
-
-		const newData = this.arrayholder.filter(item => {
-			const itemData = `${item.toUpperCase()}}`;
-			const textData = text.toUpperCase();
-
-			return itemData.indexOf(textData) > -1;
-		});
-		this.setState({
-			data: newData,
-		});
-		
-	};
 
 	renderHeader = () => {
 		return (
@@ -83,30 +65,39 @@ export default class Home extends Component {
 					marginBottom: 10,
 					borderBottomWidth: 1,
 				}}
-				>
+			>
 			</SearchInput>
 		);
 	};
 
-	render() {
-		if (this.state.loading) {
-			return (
-				<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-					<ActivityIndicator />
-				</View>
-			);
+	// this function is used to extract the header of an array object for flat list render
+	extractHeaderFilter(filteredUser) {
+		const headerData = [];
+		for (let i = 0; i < filteredUser.length; i++) {
+			headerData[i] = filteredUser[i].name;
 		}
+		return headerData;
+	}
+
+	render() {
+		// below line will filter the value of the key that we pass in KEYS_TO_FILTERS, FakeData.data is our object
+		const filteredUser = FakeData.data.filter(createFilter(this.state.data, KEYS_TO_FILTERS));
+		const headerData = this.extractHeaderFilter(filteredUser);
+		console.log('header data: ', headerData);
 		return (
 			<View style={{ flex: 1 }}>
 				<FlatList
-					data={FakeData.data}
+					data={headerData}
 					renderItem={(item, index) => {
 						console.log('Item: ', item.item); //item is an object which consists of item name, item index, ...
 						console.log('index: ', item.index);
 						return (
-							// parentFlatList
-							<FlatListItem item={item} index={index} refresh={this} flag={true} data={FakeData.data}>
-
+							<FlatListItem
+								item={item}
+								index={index}
+								refresh={this}
+								flag={true}
+								data={FakeData.data}>
 							</FlatListItem>
 						);
 					}}

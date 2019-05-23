@@ -19,7 +19,7 @@ export default class AddModal extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: '',
+            email: '',
             addErrorMessage: '',
         }
     }
@@ -30,17 +30,17 @@ export default class AddModal extends Component {
 
     handleAdding() {
         console.log('add button hit !!!');
-        const { username } = this.state;
-        if (username !== '' && username.length <= 50) {
+        const { email } = this.state;
+        if (email !== '' && email.length <= 50) {
             this.setState({ addErrorMessage: '' }); // state is reset
-            const payload = { username };
+            const payload = { email };
             console.log('payload in handle login: ', payload);
             setTimeout(async () => {
                 await api.addUser(payload, this.onHandleAddUser.bind(this));
             }, 200);
         }
         else {
-            this.setState({ addErrorMessage: 'Invalid username input !' });
+            this.setState({ addErrorMessage: 'Invalid email input !' });
         }
     }
 
@@ -62,7 +62,7 @@ export default class AddModal extends Component {
     }
 
     render() {
-        const { username } = this.state;
+        const { email } = this.state;
         const { loginButtonText, loginButton } = LoginStyle;
         return (
             <Modal
@@ -78,7 +78,7 @@ export default class AddModal extends Component {
                 backdrop={true} // this is used to close when click outside of the box ?
                 onClosed={() => {
                     // this makes sure all the states are cleared before rendering
-                    this.setState({username: '', addErrorMessage: ''}) 
+                    this.setState({ email: '', addErrorMessage: ''}) 
                 }}
 
             >
@@ -101,9 +101,9 @@ export default class AddModal extends Component {
                         marginBottom: 10,
                         borderBottomWidth: 1,
                     }}
-                    placeholder='Search an username'
-                    onChangeText={txt => this.setState({ username: txt })}
-                    value={username}
+                    placeholder='Search an email'
+                    onChangeText={txt => this.setState({ email: txt })}
+                    value={email}
                     maxLength={50}>
                 </TextInput>
                 {this.renderError()}

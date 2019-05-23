@@ -30,7 +30,7 @@ export default class FeedbackDetail extends Component {
                             Header
                         </Text>
                         <Text style={{ marginLeft: 55, marginRight: 10, marginTop: 20, fontSize: 15}}>
-                        {params.header}
+                        {params.response}
                         </Text>
                         <Text style={[{
                             marginLeft: 55,
@@ -38,10 +38,10 @@ export default class FeedbackDetail extends Component {
                             fontSize: 20,
                         },
                             loginText]}>
-                            Response
+                            Content
                         </Text>
                         <Text style={{ marginLeft: 55, marginRight: 10, marginTop: 20, fontSize: 15 }}>
-                            {params.response}
+                            {params.content}
                         </Text>
                     </View>
                 </View>

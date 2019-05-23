@@ -38,10 +38,10 @@ class Login extends Component {
     super(props);
     // state is set because username & password will change a lot
     this.state = {
-      username: 'ducphamle212@gmail.com',
-      password: 'Pabcdef3#',
-      //username: '',
-      //password: '',
+      //email: 'ducphamle212@gmail.com',
+      //password: 'Pabcdef3#',
+      email: 'how_are_you@gmail.com',
+      password: '123456',
       loginErrorMessage: '',
       color: '#DB1E4A',
       isClicked: false,
@@ -53,9 +53,9 @@ class Login extends Component {
 
   // when user hit the login button
   handleLogin() {
-    const { username, password } = this.state;
-    if (password !== '' && username !== '' && username.length <= 100 && password.length <= 20) {
-      const payload = { username, password };
+    const { email, password } = this.state;
+    if (password !== '' && email !== '' && email.length <= 100 && password.length <= 20) {
+      const payload = { email, password };
       console.log('payload in handle login: ', payload);
       setTimeout(async () => {
         await api.login(payload, this.onHandle.bind(this));
@@ -63,10 +63,10 @@ class Login extends Component {
     }
     else {
       // check if input are valid or not
-      if (username.length > 100 || password.length > 20) {
+      if (email.length > 100 || password.length > 20) {
         this.setState({ loginErrorMessage: 'username or password length is too long (max 50 and 20)' });
       }
-      else if (username === '' || password === '') {
+      else if (email === '' || password === '') {
         this.setState({ loginErrorMessage: 'Please type username or password' });
       }
       else {
@@ -82,17 +82,25 @@ class Login extends Component {
       // if successfully login
       if (response.request.status === 200) {
         console.log('SUCESSFULLYYYYYYY');
-        console.log('response token: ', response.data.token);
         setTimeout(() => {
-          dispatch(LoginAction.setUsername(this.state.username)); // set username state to current username for later use
+          dispatch(LoginAction.setUsername(this.state.email)); // set username state to current username for later use
         }, 200);
         if (this.state.isRemembered) { // if is remember is ticked
-          DataAsync.setData(myLoginConstant.REMEMBER_USERNAME, this.state.username);
+          DataAsync.setData(myLoginConstant.REMEMBER_USERNAME, this.state.email);
           DataAsync.setData(myLoginConstant.REMEMBER_ACCOUNT, 'true');
           if (!StringUtil.isEmpty(response.data.token)) {
-            DataAsync.setData(myLoginConstant.TOKEN, response.data.token);
-            dispatch(LoginAction.setToken(response.data.token));
+            console.log('response token: ', response.data.token);
+            const token = 'Bearer ' + response.data.token;
+            console.log('new token: ', token); // has to do this because the api needs bearer before the token
+            DataAsync.setData(myLoginConstant.TOKEN, token);
+            dispatch(LoginAction.setToken(token));
           }
+        }
+        else {
+          console.log('response token: ', response.data.token);
+          const token = 'Bearer ' + response.data.token;
+          console.log('new token: ', token); // has to do this because the api needs bearer before the token
+          dispatch(LoginAction.setToken(token));
         }
         dispatch(LoginAction.isLoginSuccess(true)); // set to true to move to Home
       }
@@ -141,10 +149,10 @@ class Login extends Component {
 
   // check if the user has clicked remember user before
   async componentWillMount() {
-    const username = await DataAsync.getData(myLoginConstant.REMEMBER_USERNAME);
+    const email = await DataAsync.getData(myLoginConstant.REMEMBER_USERNAME);
     const isRemembered = await DataAsync.getData(myLoginConstant.REMEMBER_ACCOUNT);
     const token = await DataAsync.getData(myLoginConstant.TOKEN);
-    console.log('username in data async: ', username);
+    console.log('username in data async: ', email);
     console.log('is remembered in async: ', isRemembered);
     console.log('token in async: ', token);
     console.log('is login success ??', this.state.isLoginSuccess);
@@ -152,7 +160,7 @@ class Login extends Component {
     if (isRemembered === 'true') {
       const { dispatch } = this.props;
       setTimeout(() => {
-        dispatch(LoginAction.setUsername(username)); // set username to current username for later use
+        dispatch(LoginAction.setUsername(email)); // set username to current username for later use
       }, 200);
       dispatch(LoginAction.setToken(token));
       dispatch(LoginAction.isLoginSuccess(true)); // set to true to move to Home
@@ -175,7 +183,7 @@ class Login extends Component {
         height: 700
       }
     })
-    const { username, password } = this.state;
+    const { email, password } = this.state;
     const { loginButtonText, loginButton, loginText, signUpButton, signUpButtonText, findButtonText, findButton } = LoginStyle;
     return (
       <ScrollView keyboardShouldPersistTaps="always">
@@ -206,13 +214,13 @@ class Login extends Component {
                 <Input
                   autoCorrect={false}
                   autoCapitalize="none"
-                  placeholder={'username'}
+                  placeholder={'email'}
                   inputFontSize={10}
                   inputHeightBase={10}
                   //lineHeight={10}
                   returnKeyType="next"
-                  onChangeText={txt => this.setState({ username: txt })}
-                  value={username}
+                  onChangeText={txt => this.setState({ email: txt })}
+                  value={email}
                   maxLength={50}
                 />
               </Item>
@@ -307,6 +315,6 @@ class Login extends Component {
 export default connect(state => ({
   isLoginSuccess: state.LoginReducer.isLoginSuccess,
   registerEnter: state.LoginReducer.registerEnter,
-  username: state.LoginReducer.username,
+  email: state.LoginReducer.email,
   password: state.LoginReducer.password,
 }))(Login);

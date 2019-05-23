@@ -8,7 +8,7 @@ const LoginReducer = (
   state = {
     isLoginSuccess: false,
     registerEnter: false,
-    username: '',
+    email: '',
     password: '',
     token: '',
   }, action) => {
@@ -24,14 +24,14 @@ const LoginReducer = (
       return {
         ...state,
         isLoginSuccess: false,
-        username: '',
+        email: '',
         password: '',
         token: '',
       }
     case ActionType.SET_USERNAME:
       return {
         ...state,
-        username: payload
+        email: payload
       }
     case ActionType.SET_TOKEN:
       return {

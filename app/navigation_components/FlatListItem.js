@@ -5,6 +5,7 @@ import Swipeout from 'react-native-swipeout';
 import ActionButton from 'react-native-action-button'; // doc: https://github.com/mastermoo/react-native-action-button
 import ModalFeedback from '../render_component/ModalFeedback';
 import { withNavigation } from 'react-navigation';
+import api from '../config/Api';
 
 const { width } = Dimensions.get('window');
 
@@ -95,6 +96,7 @@ class FlatListItem extends React.Component {
             this.props.navigation.navigate('UserDetail', name);
         }
         else { // if the caller is from Feedback
+            console.log('data from parent sent: ', this.props.data);
             const response = [{
                 'header': 'App quality',
                 'response': 'Noobaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',

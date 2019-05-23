@@ -34,13 +34,19 @@ class Main extends Component {
         // dispatch(LoaderAction.setLoader(true));
         const token = await DataAsync.getData(myLoginConstant.TOKEN);
 
-        console.log('interceptor request begin... >>>>>>>>>>>>>>>> = ', token);
+        console.log('interceptor request begin in Data Async... >>>>>>>>>>>>>>>> = ', token);
+        console.log('interceptor request in redux: ', this.props.token);
 
-        if (StringUtil.isEmpty(token)) {
+        if (StringUtil.isEmpty(token) && StringUtil.isEmpty(this.props.token)) {
           // do nothing
           // do
         } else {
-          config.headers.Authorization = token; // chan ly.
+          if (!StringUtil.isEmpty(token)) {
+            config.headers.Authorization = token; // chan ly.
+          }
+          else {
+            config.headers.Authorization = this.props.token; // store in redux instead so after rerendering the app it is not stored
+          }
         }
 
         return config;
@@ -72,20 +78,21 @@ class Main extends Component {
   }
 
   render() {
-    const { isLoginSuccess , registerEnter} = this.props;
+    const { isLoginSuccess, registerEnter } = this.props;
     if (!isLoginSuccess && registerEnter) {
-      return <Register/>;
+      return <Register />;
     }
     else if (isLoginSuccess) {
-      return <StackHome/>;
+      return <StackHome />;
     }
     else {
-      return <Login/>;
+      return <Login />;
     }
   }
 }
 
 export default connect(state => ({
   isLoginSuccess: state.LoginReducer.isLoginSuccess,
-  registerEnter: state.LoginReducer.registerEnter
+  registerEnter: state.LoginReducer.registerEnter,
+  token: state.LoginReducer.token,
 }))(Main);
