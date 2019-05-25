@@ -48,6 +48,7 @@ export default class AddModal extends Component {
         }
     }
 
+    // maybe we can use redux here to store feedback data. After adding we update it, which affects feedback
     onHandleAddUser(isSuccess, response, error) {
         if (isSuccess) {
             console.log('success');

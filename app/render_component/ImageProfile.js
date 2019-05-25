@@ -1,8 +1,11 @@
 import React from 'react';
 import { Text, Image, View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
-import Example from '../../navigation_components/Example';
 import { withNavigation } from 'react-navigation';
+import { connect } from 'react-redux';
+import RenderPictures from './RenderPictures'
+import Example from '../navigation_components/Example';
+import images from '../assets/image_source/Images';
 
 const { width } = Dimensions.get('window');
 
@@ -35,8 +38,12 @@ const style = StyleSheet.create({
 class ImageProfile extends React.Component {
     constructor(props) {
         super(props);
+        let source = {
+            uri: this.props.url
+        }
         this.state = {
-            avatarSource: '',
+            avatarSource: source,
+            isClicked: false,
         }
         this.selectPhotoTapped = this.selectPhotoTapped.bind(this);
     }
@@ -61,11 +68,13 @@ class ImageProfile extends React.Component {
             } else if (response.customButton) {
                 console.log('User tapped custom button: ', response.customButton);
             } else {
-                let source = { uri: response.uri };
+                let source = {
+                    uri: response.uri
+                };
 
                 // You can also display the image using data:
                 // let source = { uri: 'data:image/jpeg;base64,' + response.data };
-
+                console.log('source here: ', source)
                 this.setState({
                     avatarSource: source,
                 });
@@ -75,21 +84,26 @@ class ImageProfile extends React.Component {
 
     // when clicking the image it will direct user to many pics
     handleImageClicked() {
-        const {navigate} = this.props.navigation;
-        navigate('Example'); 
+        this.props.navigation.navigate('RenderPictures');
     }
 
     render() {
-        const { url, content, cameraUrl } = this.props; // url for the picture (get from user info db, and content is name)
-
+        const { content, cameraUrl } = this.props; // url for the picture (get from user info db, and content is name)
         const { container, contentStyle, imgStyle } = style;
-
+        if (this.state.avatarSource === '') {
+            let source = {
+                uri: images.camera
+            }
+            this.setState({
+                avatarSource: source
+            })
+        }
         return (
             <View style={container}>
                 <TouchableOpacity
                     onPress={this.handleImageClicked.bind(this)}
                 >
-                    <Image source={url} style={imgStyle} />
+                    <Image source={this.state.avatarSource} style={imgStyle} />
                 </TouchableOpacity>
                 <View
                     style={{

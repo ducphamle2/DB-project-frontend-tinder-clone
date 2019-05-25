@@ -9,6 +9,7 @@ const UserInfoReducer = (
         gender: '',
         phoneNumber: '',
         city: '',
+        image: [],
     }, action) => {
     const { type, payload } = action;
     switch (type) {
@@ -19,6 +20,11 @@ const UserInfoReducer = (
                 gender: payload.gender,
                 phoneNumber: payload.phoneNumber,
                 city: payload.city,
+            }
+        case ActionType.UPDATE_IMAGE:
+            return {
+                ...state,
+                image: payload
             }
         default:
             return state;

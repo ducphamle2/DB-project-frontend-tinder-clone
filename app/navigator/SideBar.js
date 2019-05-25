@@ -9,17 +9,20 @@ import LoginAction from '../redux/actions/LoginAction';
 import stateUtil from '../utils/StateUtil';
 import BackGroundImage from '../assets/background/BackGroundImage';
 import StringUtil from '../utils/StringUtils';
-import ImageProfile from '../assets/image_source/ImageProfile';
+import ImageProfile from '../render_component/ImageProfile';
 import styles from '../assets/styles/sideBarStyle';
 import PopupLogout from '../render_component/PopupLogout';
 import IconSidebar from '../render_component/IconSideBar';
 import DataAsync from '../utils/DataAsync';
 import { myLoginConstant } from '../utils/Constants';
+import UserInfoAction from '../redux/actions/UserInfoAction'
 
 class SideBar extends Component {
   constructor(props) {
     super(props);
-    this.state = { isConfirm: false }; //is used to check if the logout popup choice, if true then a popup will show up.
+    this.state = {
+      isConfirm: false,
+    }; //is used to check if the logout popup choice, if true then a popup will show up.
   }
 
   getProfile() {
@@ -36,6 +39,11 @@ class SideBar extends Component {
   getSettings() {
     const { navigate } = this.props.navigation;
     navigate('Example');
+  }
+
+  setupPictures() {
+    const { navigate } = this.props.navigation;
+    navigate('SetupPictures');
   }
 
   /*
@@ -67,9 +75,18 @@ class SideBar extends Component {
     this.setState({ isConfirm: false }); // change to false will close the popup
   }
 
+  componentWillMount() {
+    const payload = {
+      age: '',
+      gender: '',
+      phoneNumber: '',
+      city: '',
+    };
+    this.props.dispatch(UserInfoAction.updateUserInfo(payload));
+  }
+
   render() {
     const { email } = this.props;
-    console.log("email: ", email)
     const { container, sbInfo, userInfoNav } = styles;
     const { isConfirm } = this.state;
     return (
@@ -88,13 +105,14 @@ class SideBar extends Component {
               <View style={userInfoNav}>
                 {!StringUtil.isEmpty(email) ? (
                   <ImageProfile
-                    url={images.user}
+                    url={this.props.image[0]}
                     cameraUrl={images.camera}
                     content={
                       !StringUtil.isEmpty(email)
                         ? 'Phạm Lê Đức'
                         : ''
                     }
+
                   />
                 ) : null}
               </View>
@@ -128,7 +146,11 @@ class SideBar extends Component {
                   onPress={this.getFeedback.bind(this)}
                   content={'Help & feedbacks'}
                 />
-
+                <IconSidebar
+                  source={images.camera}
+                  onPress={this.setupPictures.bind(this)}
+                  content={'Setup pictures'}
+                />
                 <IconSidebar
                   source={images.logoutIcon}
                   onPress={this.logout.bind(this)}
@@ -143,8 +165,9 @@ class SideBar extends Component {
   }
 }
 
-// these two variables will become SideBar's props
+// these two variables will become SideBar's states
 export default connect(state => ({
   isLoginSuccess: state.LoginReducer.isLoginSuccess,
   email: state.LoginReducer.email,
+  image: state.UserInfoReducer.image,
 }))(SideBar);

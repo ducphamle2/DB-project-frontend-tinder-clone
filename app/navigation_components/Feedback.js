@@ -28,6 +28,17 @@ const styles = StyleSheet.create({
 	},
 });
 
+const data = [
+	{
+		key: 1,
+		value: 'noob',
+	},
+	{
+		key: 2,
+		value: 'noob2',
+	}
+]
+
 // these will be the headers
 
 /* tutorial for using FlatList: https://www.youtube.com/watch?v=NZMp5JLSIAM
@@ -52,10 +63,12 @@ export default class Feedback extends Component {
 
 	// get data from db
 	async componentWillMount() {
+		// this.state.data = redux data ?
 		await api.getFeedback(this.onHandleGetFeedback.bind(this));
 	}
 
 	async componentDidMount() {
+		// this.state.data = redux data ?
 		await api.getFeedback(this.onHandleGetFeedback.bind(this));
 	}
 
@@ -81,7 +94,7 @@ export default class Feedback extends Component {
 			else {
 				const temp = [];
 				for (let i = 0; i < response.data.length; i++) {
-					temp[i] = response.data[i].content;
+					temp[i] = response.data[i].content; //get the content of data
 				}
 				this.setState({ data: temp });
 			}
@@ -107,6 +120,8 @@ export default class Feedback extends Component {
 						console.log('index: ', item.index);
 						return (
 							// parentFlatList
+							// need to pass an array of object pic url, and then we scan its index
+							// in the FlatListItem. If it matched then we get that url from that index.
 							<FlatListItem item={item} index={index} refresh={this} flag={false} data={data}>
 
 							</FlatListItem>

@@ -24,6 +24,7 @@
     "react-native-modalbox": "^1.7.1",
     "react-native-search-filter": "^0.1.4",
     "react-native-swipeout": "^2.3.6",
+    "react-native-web-swiper": "^1.14.0",
     "react-navigation": "^3.6.1",
     "react-navigation-drawer": "1.2.1",
     "react-redux": "6.0.1",

@@ -65,9 +65,15 @@ class FlatListItem extends React.Component {
         this.state = {
             activeRow: '',
             activeIndex: '',
+            image: images.user,
         }
         //this.handleOnOpen = this.handleOnOpen.bind(this);
         this.handleParentComponent = this.handleParentComponent.bind(this);
+        this.filterArray = this.filterArray.bind(this);
+    }
+
+    componentWillMount() {
+        this.filterArray();
     }
 
     handleParentComponent() {
@@ -123,8 +129,22 @@ class FlatListItem extends React.Component {
         }
     }
 
+    // this function collects the correct index of our data to retrieve pics and stuff
+    filterArray() {
+        const {data} = this.props;
+        for (let i = 0; i < data.length; i++) {
+            if (this.props.item.index === i) { //check the item index, if it reaches the correct index in data then take it
+                let source = {
+                    uri: data[i].uri
+                }
+                this.setState({image: source});
+            }
+        }
+        console.log('image now: ', this.state.image);
+    }
+
     render() {
-        const { item, refresh, data } = this.props;
+        const { item, refresh, data, index } = this.props;
         // these will be the headers
         const swipeSettings = {
             autoClose: true,
@@ -170,6 +190,7 @@ class FlatListItem extends React.Component {
                             {
                                 text: 'Yes', onPress: () => {
                                     data.splice(item.index, 1); // splice function is used to delete element
+                                    // should call api here to delete right away
                                     refresh.refreshFlatList();
                                 }
                             }
@@ -184,11 +205,12 @@ class FlatListItem extends React.Component {
             sectionId: 1
         }
         console.log('before rendering flatlist');
+        console.log('fake data: ', this.props.data);
         return (
             <Swipeout {...swipeSettings}>
                 <View style={{ flex: 1, flexDirection: 'column' }}>
                     <View style={{ flex: 1, flexDirection: 'row', backgroundColor: 'white' }}>
-                        <Image source={images.user} style={flatStyles.imgStyle}>
+                        <Image source={this.state.image} style={flatStyles.imgStyle}>
 
                         </Image>
                         <View style={{ flex: 1, flexDirection: 'column', height: 60, }}>

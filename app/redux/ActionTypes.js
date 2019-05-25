@@ -10,6 +10,7 @@ const ActionTypes = {
     SET_TOKEN: 'SET_TOKEN',
     REGISTER_ENTER: 'REGISTER_ENTER',
     UPDATE_INFO: 'UPDATE_INFO',
+    UPDATE_IMAGE: 'UPDATE_IMAGE',
 }
 
 export default ActionTypes;

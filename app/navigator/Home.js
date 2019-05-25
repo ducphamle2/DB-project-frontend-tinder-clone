@@ -8,6 +8,10 @@ import FlatListItem from '../navigation_components/FlatListItem';
 import SearchInput, { createFilter } from 'react-native-search-filter';
 import FakeData from '../config/FakeData';
 import { ScrollView } from 'react-native-gesture-handler';
+import api from '../config/Api';
+import UserInfoAction from '../redux/actions/UserInfoAction';
+import { connect } from 'react-redux';
+
 const KEYS_TO_FILTERS = ['name']; // key used in filter
 
 const { width } = Dimensions.get('window');
@@ -34,14 +38,47 @@ const styles = StyleSheet.create({
 	 It has two main props: data and renderItem.
 	 For renderItem it needs to receive an arrow function with two params: item & index of the item
 */
-export default class Home extends Component {
+class Home extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			isDeleted: false,
 			data: '',
+			array: [],
 		}
 		this.handleAddButton = this.handleAddButton.bind(this);
+		this.extractImageUrlFilter = this.extractImageUrlFilter.bind(this);
+	}
+
+	/* this will call the api to get all the information we need about possible liked candidates including pictures, names, etc...
+		Correct data type: 
+		response = [
+			{
+				'name': 'abc',
+				'url': 'xyz',...
+			},
+			{
+
+			}
+		]
+	*/
+	/*
+	async componentWillMount() {
+		await api.getInfo(this.onGetInfoHandle.bind(this));
+	}
+
+	onGetInfoHandle(isSuccess, response, error) {
+		if (isSuccess) {
+			this.setState({array: response.data});
+		}
+		else {
+			console.log('error in Home: ', error);
+		}
+	}
+	*/
+
+	componentWillMount() {
+		this.extractImageUrlFilter();
 	}
 
 	handleAddButton() {
@@ -79,9 +116,20 @@ export default class Home extends Component {
 		return headerData;
 	}
 
+	extractImageUrlFilter() {
+		const uri = [];
+		for (let i = 0; i < FakeData.data.length - 1; i++) {
+			uri[i] = FakeData.data[i].uri;
+		}
+		const { dispatch } = this.props;
+		console.log('uri in extract: ', uri)
+		dispatch(UserInfoAction.updateImage(uri));
+	}
+
 	render() {
 		// below line will filter the value of the key that we pass in KEYS_TO_FILTERS, FakeData.data is our object
 		const filteredUser = FakeData.data.filter(createFilter(this.state.data, KEYS_TO_FILTERS));
+		//const filteredUser = this.state.array.filter(createFilter(this.state.data, KEYS_TO_FILTERS));
 		const headerData = this.extractHeaderFilter(filteredUser);
 		console.log('header data: ', headerData);
 		return (
@@ -89,15 +137,17 @@ export default class Home extends Component {
 				<FlatList
 					data={headerData}
 					renderItem={(item, index) => {
-						console.log('Item: ', item.item); //item is an object which consists of item name, item index, ...
-						console.log('index: ', item.index);
+						//console.log('Item: ', item.item); //item is an object which consists of item name, item index, ...
+						//console.log('index: ', item.index);
 						return (
 							<FlatListItem
 								item={item}
 								index={index}
 								refresh={this}
 								flag={true}
-								data={FakeData.data}>
+								data={FakeData.data}
+							//data={this.state.array}
+							>
 							</FlatListItem>
 						);
 					}}
@@ -116,3 +166,7 @@ export default class Home extends Component {
 		);
 	}
 }
+
+export default connect(state => ({
+	image: state.UserInfoReducer.image,
+}))(Home);
