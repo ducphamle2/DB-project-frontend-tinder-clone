@@ -12,6 +12,7 @@ import Tabbar from '../navigator/Tabbar';
 import DropdownMenu from 'react-native-dropdown-menu';
 import { Dropdown } from 'react-native-material-dropdown';
 import SideBar from '../navigator/SideBar';
+import LogoTitle from '../render_component/LogoTitle';
 
 
 const Drawer = createDrawerNavigator(
@@ -50,11 +51,6 @@ const StackNavigator = createStackNavigator(
 				<View style={{ flexDirection: 'row' }}>
 					<TouchableOpacity
 					>
-						<Image style={{ marginRight: 10, tintColor: '#FFFFFF' }} source={images.search} />
-					</TouchableOpacity>
-
-					<TouchableOpacity
-					>
 						<Image style={{ marginRight: 5, tintColor: '#FFFFFF' }} source={images.settings} />
 					</TouchableOpacity>
 				</View>
@@ -71,7 +67,7 @@ const StackNavigator = createStackNavigator(
 				flex: 1,
 				font: 20
 			},
-			headerTitle: <LogoTitle />
+			headerTitle: <LogoTitle navigation={navigation}/>
 		})
 	}
 )
@@ -97,37 +93,5 @@ const styles = StyleSheet.create({
 		position: 'relative'
 	}
 });
-
-// this class is used to get custom component for the header (dropdown)
-class LogoTitle extends Component {
-
-	render() {
-		let data = [{
-			value: 'All Contacts',
-		}, {
-			value: 'Mango',
-		}, {
-			value: 'Pear',
-		}];
-		return (
-			// link doc for Dropdown component: https://reactnativeexample.com/material-dropdown-with-consistent-behaviour-on-ios-and-android/
-			<View style={{ flex: 1, tintColor: '#FFFFFF' }}>
-				<Dropdown
-					//label='All Contacts'
-					data={data}
-					value={'All Contacts'}
-					dropdownPosition={0}
-					containerStyle={{ marginRight: 145, marginLeft: 30, marginBottom: 23 }}
-					fontSize={18}
-					baseColor={'#FFFFFF'}
-					textColor={'#FFFFFF'}
-					itemColor={'#000000'}
-					selectedItemColor={'#3FA1F6'}
-					fontWeight={'bold'}
-				/>
-			</View>
-		)
-	}
-}
 
 export default StackNavigator;

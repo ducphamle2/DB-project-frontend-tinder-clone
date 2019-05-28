@@ -87,7 +87,7 @@ const RootStack = createStackNavigator({
     UserDetail: {
         screen: UserDetail,
         navigationOptions: ({ navigation }) => ({
-            title: 'Feedback Details',
+            title: 'User Details',
             headerTitleStyle: {
                 fontWeight: 'bold',
                 textAlign: 'center',

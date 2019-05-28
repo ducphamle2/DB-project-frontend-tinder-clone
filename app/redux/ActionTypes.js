@@ -11,6 +11,7 @@ const ActionTypes = {
     REGISTER_ENTER: 'REGISTER_ENTER',
     UPDATE_INFO: 'UPDATE_INFO',
     UPDATE_IMAGE: 'UPDATE_IMAGE',
+    UPDATE_TITLE: 'UPDATE_TITLE',
 }
 
 export default ActionTypes;

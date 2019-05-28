@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import RenderPictures from './RenderPictures'
 import Example from '../navigation_components/Example';
 import images from '../assets/image_source/Images';
+import StringUtil from '../utils/StringUtils';
 
 const { width } = Dimensions.get('window');
 
@@ -44,6 +45,7 @@ class ImageProfile extends React.Component {
         this.state = {
             avatarSource: source,
             isClicked: false,
+            isNull: false
         }
         this.selectPhotoTapped = this.selectPhotoTapped.bind(this);
     }
@@ -87,23 +89,24 @@ class ImageProfile extends React.Component {
         this.props.navigation.navigate('RenderPictures');
     }
 
+    componentWillMount() {
+        console.log('avatar source in will mount: ', this.state.avatarSource);
+        if (StringUtil.isEmpty(this.state.avatarSource.uri)) {
+            this.setState({
+                isNull: true
+            })
+        }
+    }
+
     render() {
         const { content, cameraUrl } = this.props; // url for the picture (get from user info db, and content is name)
         const { container, contentStyle, imgStyle } = style;
-        if (this.state.avatarSource === '') {
-            let source = {
-                uri: images.camera
-            }
-            this.setState({
-                avatarSource: source
-            })
-        }
         return (
             <View style={container}>
                 <TouchableOpacity
                     onPress={this.handleImageClicked.bind(this)}
                 >
-                    <Image source={this.state.avatarSource} style={imgStyle} />
+                    <Image source={this.state.isNull ? images.user : this.state.avatarSource} style={imgStyle} />
                 </TouchableOpacity>
                 <View
                     style={{

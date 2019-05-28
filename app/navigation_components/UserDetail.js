@@ -9,7 +9,7 @@ export default class FeedbackDetail extends Component {
         const { goBack } = this.props.navigation;
         const { params } = this.props.navigation.state;
         goBack('Feedback');
-        console.log('state in detail: ', params);
+        console.log('state in user detail: ', params);
 
         const { loginButtonText, loginButton, loginText, signUpButton, signUpButtonText, findButtonText, findButton } = LoginStyle;
 
@@ -27,10 +27,10 @@ export default class FeedbackDetail extends Component {
                             fontSize: 20,
                         },
                             loginText]}>
-                            Header
+                            Username
                         </Text>
                         <Text style={{ marginLeft: 55, marginRight: 10, marginTop: 20, fontSize: 15 }}>
-                            Alo
+                            {params.username === '' ? 'No info' : params.username}
                         </Text>
                         <Text style={[{
                             marginLeft: 55,
@@ -38,10 +38,32 @@ export default class FeedbackDetail extends Component {
                             fontSize: 20,
                         },
                             loginText]}>
-                            Response
+                            City
                         </Text>
                         <Text style={{ marginLeft: 55, marginRight: 10, marginTop: 20, fontSize: 15 }}>
-                            response
+                            {params.city === '' ? 'No info' : params.city}
+                        </Text>
+                        <Text style={[{
+                            marginLeft: 55,
+                            marginTop: 20,
+                            fontSize: 20,
+                        },
+                            loginText]}>
+                            DOB
+                        </Text>
+                        <Text style={{ marginLeft: 55, marginRight: 10, marginTop: 20, fontSize: 15 }}>
+                            {params.dob === '0' ? 'No info' : params.dob}
+                        </Text>
+                        <Text style={[{
+                            marginLeft: 55,
+                            marginTop: 20,
+                            fontSize: 20,
+                        },
+                            loginText]}>
+                            Gender
+                        </Text>
+                        <Text style={{ marginLeft: 55, marginRight: 10, marginTop: 20, fontSize: 15 }}>
+                            {params.gender === '0' ? 'No info' : params.gender}
                         </Text>
                     </View>
                 </View>

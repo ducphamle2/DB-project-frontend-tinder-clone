@@ -2,9 +2,12 @@ import axios from "axios";
 const url = {
   LOGIN: 'login',
   REGISTER: 'register',
-  GET_INFO: 'getInfo',
+  GET_INFO: 'user/filter',
+  GET_ONE_INFO: 'user',
   SET_INFO: 'setInfo',
   FEEDBACK: 'feedback',
+  SWIPE: 'user',
+  LIKED: 'user/liked',
 };
 
 function login(payload, callback) {
@@ -37,11 +40,23 @@ function register(payload, callback) {
     });
 }
 
-function getInfo(payload, callback) {
+function getInfo(callback) {
   axios({
-    method: 'POST',
+    method: 'GET',
     url: url.GET_INFO,
-    data: payload
+  })
+    .then(response => {
+      callback(true, response, null);
+    })
+    .catch(error => {
+      callback(false, null, error);
+    });
+}
+
+function getOneInfo(payload, callback) {
+  axios({
+    method: 'GET',
+    url: url.GET_ONE_INFO + '/' + payload,
   })
     .then(response => {
       callback(true, response, null);
@@ -106,6 +121,36 @@ function getOneFeedback(payload, callback) {
     });
 }
 
+function swipe(payload, callback) {
+  const data = {
+    status: payload.status
+  }
+  axios({
+    method: 'PUT',
+    url: url.SWIPE + '/' + payload.url,
+    data: data
+  })
+  .then(response => {
+    callback(true, response, null);
+  })
+  .catch(error => {
+    callback(false, null, error);
+  });
+}
+
+function getLikedUsers(callback) {
+  axios({
+    method: 'GET',
+    url: url.LIKED,
+  })
+    .then(response => {
+      callback(true, response, null);
+    })
+    .catch(error => {
+      callback(false, null, error);
+    });
+}
+
 const api = {
   login,
   register,
@@ -114,6 +159,9 @@ const api = {
   addUser,
   getFeedback,
   getOneFeedback,
+  getOneInfo,
+  swipe,
+  getLikedUsers,
 }
 
 export default api;
