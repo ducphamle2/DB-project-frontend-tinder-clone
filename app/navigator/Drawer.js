@@ -49,9 +49,11 @@ const StackNavigator = createStackNavigator(
 			//header: <LogoTitle/>,
 			headerRight: (
 				<View style={{ flexDirection: 'row' }}>
-					<TouchableOpacity
+					<TouchableOpacity onPress={() => {
+						navigation.navigate('Notification');
+					}}
 					>
-						<Image style={{ marginRight: 5, tintColor: '#FFFFFF' }} source={images.settings} />
+						<Image style={{ marginRight: 5, tintColor: '#FFFFFF' }} source={images.alarm} />
 					</TouchableOpacity>
 				</View>
 			),

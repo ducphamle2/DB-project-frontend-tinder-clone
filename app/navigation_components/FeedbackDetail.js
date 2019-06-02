@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { Button } from 'react-native-elements';
 import LoginStyle from '../assets/styles/LoginStyle';
-import { ScrollView } from 'react-native-gesture-handler';
 
 export default class FeedbackDetail extends Component {
     render() {

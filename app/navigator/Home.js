@@ -6,7 +6,8 @@ import {
   Image,
   FlatList,
   Dimensions,
-  Alert
+  Alert,
+  Button
 } from "react-native";
 import images from "../assets/image_source/Images";
 import Swipeout from "react-native-swipeout";
@@ -20,6 +21,10 @@ import api from "../config/Api";
 import UserInfoAction from "../redux/actions/UserInfoAction";
 import { connect } from "react-redux";
 import StringUtil from "../utils/StringUtils";
+import DataAsync from "../utils/DataAsync";
+import { myLoginConstant } from "../utils/Constants";
+import LoginAction from "../redux/actions/LoginAction";
+import socketIO from "socket.io-client";
 
 const KEYS_TO_FILTERS = ["username"]; // key used in filter
 
@@ -54,12 +59,13 @@ class Home extends Component {
       isDeleted: false,
       data: "",
       array: [],
-			isClicked: false,
-			title: '',
+      isClicked: false,
+      title: ""
     };
     this.handleAddButton = this.handleAddButton.bind(this);
     this.extractImageUrlFilter = this.extractImageUrlFilter.bind(this);
     this.getIndex = this.getIndex.bind(this);
+    this.handleSocket = this.handleSocket.bind(this);
   }
 
   /* this will call the api to get all the information we need about possible liked candidates including pictures, names, etc...
@@ -76,18 +82,79 @@ class Home extends Component {
 	*/
 
   async componentWillMount() {
+    const { dispatch, id, password, email } = this.props;
     console.log("before getting likable users");
     await api.getInfo(this.onGetInfoHandle.bind(this));
+    if (
+      StringUtil.isEmpty(id) ||
+      StringUtil.isEmpty(password) ||
+      StringUtil.isEmpty(email)
+    ) {
+      // if in redux have no id => user ticks remember => get from data async
+      const id = await DataAsync.getData(myLoginConstant.REMEMBER_ID);
+      const password = await DataAsync.getData(
+        myLoginConstant.REMEMBER_PASSWORD
+      );
+      const username = await DataAsync.getData(myLoginConstant.REMEMBER_USERNAME);
+      const email = await DataAsync.getData(myLoginConstant.REMEMBER_EMAIL);
+      console.log("userID when remembering: ", id);
+      console.log("user password when remembering: ", password);
+      const payload = {username, id, email, password };
+      //dispatch(LoginAction.setId(userId)); // set id for Profile to use
+      dispatch(LoginAction.setUserInfo(payload));
+    } else {
+      // do nothing because already have id in redux
+    }
+    console.log("id in component will mount home: ", id);
+
+    dispatch(UserInfoAction.updateTitle("People you may like"));
+  }
+
+  componentDidMount() {
+    const socket = socketIO("http://192.168.56.1:3000/", {
+      transports: ["websocket"],
+      jsonp: false
+    });
+    socket.connect();
+    const data = { userId: this.props.id };
+    socket.emit("join-room", data); // send userId to socket
+    socket.on("like-matched", ({ matchedId, header, content }) => {
+      console.log("data from socket io when matched: ", {
+        matchedId,
+        header,
+        content
+      });
+      this.handleSocket({ matchedId, header, content });
+    });
+  }
+
+  handleSocket({ matchedId, header, content }) {
+    const data = { matchedId, header, content };
+    console.log("data in handle socket >>>>>>>>: ", data);
+    console.log("array state in handle socket >>>>>>: ", this.state.array);
+    Alert.alert(
+      "Notification",
+      header + ". " + content,
+      [
+        {
+          text: "OK",
+          onPress: () => {
+            console.log("OK pressed");
+          },
+          style: "cancel"
+        }
+      ],
+      { cancelable: false }
+    );
   }
 
   onGetInfoHandle(isSuccess, response, error) {
-    console.log("response data in home: ", response.data);
     if (isSuccess) {
       this.setState({ array: response.data, title: this.props.title });
     } else {
       console.log("error in Home: ", error);
     }
-    this.extractImageUrlFilter(); //extract url for images
+    // this.extractImageUrlFilter(); //extract url for images
   }
 
   onHandleLikedUsers(isSuccess, response, error) {
@@ -104,9 +171,21 @@ class Home extends Component {
   }
 
   // this function will be used to set state which makes the Home component render again - refresh our list
-  refreshFlatList = () => {
+  refreshFlatList = async () => {
     this.setState({ isDeleted: true });
+    if (this.props.title === "People you may like") {
+      await api.getInfo(this.onGetInfoHandle.bind(this));
+    } else if (this.props.title === "Liked list") {
+      await api.getLikedUsers(this.onHandleLikedUsers.bind(this));
+    }
   };
+
+  refresh(trueIndex) {
+    const data = this.state.array;
+    data.splice(trueIndex, 1);
+    this.setState({ array: data });
+    console.log("after splicing index: ", this.state.array);
+  }
 
   renderHeader = () => {
     return (
@@ -154,9 +233,9 @@ class Home extends Component {
   }
 
   // this function will return the correct index of items in flatListItems
-  getIndex(item) {
-    for (let i = 0; i < this.state.array.length; i++) {
-      if (item === this.state.array[i].username) {
+  getIndex(headerData, item) {
+    for (let i = 0; i < headerData.length; i++) {
+      if (item === headerData[i]) {
         return i;
       }
     }
@@ -171,7 +250,6 @@ class Home extends Component {
     //const filteredUser = this.state.array.filter(createFilter(this.state.data, KEYS_TO_FILTERS));
     const headerData = this.extractHeaderFilter(filteredUser);
     console.log("headerData after filtering: ", headerData);
-    const newData = this.extractDataFilter(filteredUser);
 
     // check if the Dropdown menu changes its value or not => we can catch it to rerender our Home
     const { title } = this.props;
@@ -179,7 +257,7 @@ class Home extends Component {
     if (StringUtil.isEmpty(title)) {
       console.log("empty title before rendering home");
     } else {
-			console.log('this.state.title: ', this.state.title);
+      console.log("this.state.title: ", this.state.title);
       if (title === "People you may like" && this.state.title !== title) {
         console.log("before getting likable users");
         api.getInfo(this.onGetInfoHandle.bind(this));
@@ -191,49 +269,69 @@ class Home extends Component {
       }
     }
 
-    return (
-      <View style={{ flex: 1 }}>
-        <FlatList
-          data={headerData}
-          renderItem={(item, index) => {
-            //console.log('Item: ', item.item); //item is an object which consists of item name, item index, ...
-            //console.log('index: ', item.index);
-            let i = this.getIndex(item.item);
-            //console.log('correct index in fake dataaaaaaaaa: ', i);
-            //console.log('correct data: ', array[i]);
-            return (
-              <FlatListItem
-                item={item}
-                index={index}
-                refresh={this}
-                flag={true}
-                data={FakeData.data}
-                newData={FakeData.data[i].uri[0].uri}
-                trueIndex={i} // true index of an item in our data sent by api
-                trueData={this.state.array}
-                //data={this.state.array}
-              />
-            );
-          }}
-          ListHeaderComponent={this.renderHeader}
-          keyExtractor={(item, index) => index.toString()}
-        />
-        <ActionButton
-          buttonColor="#DF2929"
-          onPress={this.handleAddButton.bind()}
-        />
+    if (this.state.array.length === 0) {
+      return (
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
+          <Button
+            onPress={this.refreshFlatList.bind(this)}
+            title="Click to refresh"
+          />
+        </View>
+      );
+    } else {
+      return (
+        <View style={{ flex: 1 }}>
+          <FlatList
+            style={{ flex: 0 }}
+            initialNumToRender={headerData.length}
+            removeClippedSubviews={false}
+            data={headerData}
+            renderItem={(item, index) => {
+              //console.log('Item: ', item.item); //item is an object which consists of item name, item index, ...
+              //console.log('index: ', item.index);
+              let i = this.getIndex(headerData, item.item);
+              //console.log('correct index in fake dataaaaaaaaa: ', i);
+              //console.log('correct data: ', array[i]);
+              return (
+                <FlatListItem
+                  item={item}
+                  index={index}
+                  refresh={this}
+                  flag={true}
+                  data={FakeData.data}
+                  //newData={FakeData.data[i].uri[0].uri}
+                  trueIndex={i} // true index of an item in our data sent by api
+                  trueData={this.state.array}
+                  title={this.props.title}
+                  //data={this.state.array}
+                />
+              );
+            }}
+            ListHeaderComponent={this.renderHeader}
+            keyExtractor={(item, index) => index.toString()}
+          />
+          <ActionButton
+            buttonColor="#DF2929"
+            onPress={this.handleAddButton.bind()}
+          />
 
-        <AddModal
-          ref={"addModal"}
-          parentFlatList={this}
-          data={this.state.array}
-        />
-      </View>
-    );
+          <AddModal
+            ref={"addModal"}
+            parentFlatList={this}
+            data={this.state.array}
+          />
+        </View>
+      );
+    }
   }
 }
 
 export default connect(state => ({
   image: state.UserInfoReducer.image,
-  title: state.UserInfoReducer.title
+  title: state.UserInfoReducer.title,
+  id: state.LoginReducer.id,
+  password: state.LoginReducer.password,
+  email: state.LoginReducer.email
 }))(Home);

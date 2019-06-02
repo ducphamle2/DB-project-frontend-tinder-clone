@@ -7,7 +7,9 @@ import {
   FlatList,
   Dimensions,
   Alert,
-  TouchableOpacity
+  TouchableOpacity,
+  ScrollView,
+  RefreshControl
 } from "react-native";
 import images from "../assets/image_source/Images";
 import Swipeout from "react-native-swipeout";
@@ -15,6 +17,7 @@ import ActionButton from "react-native-action-button"; // doc: https://github.co
 import ModalFeedback from "../render_component/ModalFeedback";
 import { withNavigation } from "react-navigation";
 import api from "../config/Api";
+import StringUtil from "../utils/StringUtils";
 
 const { width } = Dimensions.get("window");
 
@@ -73,9 +76,11 @@ class FlatListItem extends React.Component {
     super(props);
     this.state = {
       activeRow: "",
+      activeRowKey: "",
       activeIndex: "",
       image: images.user,
-      status: "liked"
+      status: "liked",
+      refreshing: false
     };
     //this.handleOnOpen = this.handleOnOpen.bind(this);
     this.handleParentComponent = this.handleParentComponent.bind(this);
@@ -87,15 +92,14 @@ class FlatListItem extends React.Component {
   handleParentComponent() {
     const { item, trueIndex } = this.props;
     if (this.props.flag) {
-      const {trueData} = this.props;
-      console.log('array in handleParentComponent: ', trueData);
+      const { trueData } = this.props;
+      console.log("array in handleParentComponent: ", trueData);
       let id = trueData[trueIndex].id;
-      console.log('true data correct index ID: ', id);
-      console.log('true name: ', trueData[trueIndex].username);
+      console.log("true data correct index ID: ", id);
+      console.log("true name: ", trueData[trueIndex].username);
       this.props.navigation.navigate("UserDetail", trueData[trueIndex]); // it should be the entire item not just name
     } else {
       // if the caller is from Feedback
-      console.log("data from parent sent: ", this.props.data);
       const response = [
         {
           header: "App quality",
@@ -134,128 +138,154 @@ class FlatListItem extends React.Component {
   }
 
   async swipeContact() {
-    const { trueData } = this.props;
+    const { trueData, trueIndex } = this.props;
+    console.log("true data in swipe contact: ", trueData);
     if (this.state.status === "liked") {
-      console.log('liked');
+      console.log("liked");
       const payload = {
-        url: trueData[0].id,
+        url: trueData[trueIndex].id,
         status: "liked"
       };
       await api.swipe(payload, this.onHandleSwipeContact.bind(this));
     } else if (this.state.status === "unliked") {
-      console.log('unliekd');
+      console.log("unliekd");
       const payload = {
-        url: trueData[0].id,
+        url: trueData[trueIndex].id,
         status: "unliked"
       };
       await api.swipe(payload, this.onHandleSwipeContact.bind(this));
-    }
-    else {
-      console.log('error');
+    } else {
+      console.log("error");
     }
   }
 
   onHandleSwipeContact(isSuccess, response, error) {
-    const { refresh, trueData, item } = this.props;
+    const { refresh, trueData, item, data } = this.props;
     if (isSuccess) {
       console.log("response data bitch: ", response);
     } else {
       console.log("error: ", error);
-      refresh.refreshFlatList();
     }
-    trueData.splice(item.index, 1); // splice function is used to delete element
+    //data.splice(item.index, 1); // splice function is used to delete element
+    //refresh.refreshFlatList();
+    refresh.refresh(this.props.trueIndex);
+  }
+
+  _onRefresh() {
+    const { refresh } = this.props;
+    this.setState({ refreshing: true });
+    console.log("before ending refresh");
     refresh.refreshFlatList();
+    this.setState({ refreshing: false });
   }
 
   render() {
-    const { item, refresh, data, index } = this.props;
+    const { item, refresh, data, index, title } = this.props;
     // these will be the headers
-    const swipeSettings = {
-      autoClose: true,
-      onClose: (secId, rowId, direction) => {
-        if (this.state.activeRow != null) {
-          this.state.activeRow = null;
-        }
-      },
-      onOpen: (secId, rowId, direction) => {},
-      right: [
-        {
-          onPress: () => {
-            Alert.alert(
-              "Confirmation",
-              "Are you sure you want to ignore this user ?",
-              [
-                {
-                  text: "No",
-                  onPress: () => {
-                    console.log("cancel pressed");
+    var swipeSettings = {};
+    // if user choose likable users => they can like. When it comes to liked users they cannot do anything
+    if (title === "People you may like") {
+      swipeSettings = {
+        autoClose: true,
+        right: [
+          {
+            onPress: () => {
+              Alert.alert(
+                "Confirmation",
+                "Are you sure you want to ignore this user ?",
+                [
+                  {
+                    text: "No",
+                    onPress: () => {
+                      console.log("cancel pressed");
+                    },
+                    style: "cancel"
                   },
-                  style: "cancel"
-                },
-                {
-                  text: "Yes",
-                  onPress: this.swipeContact
-                }
-              ],
-              { cancelable: true }
-            );
+                  {
+                    text: "Yes",
+                    onPress: this.swipeContact
+                  }
+                ],
+                { cancelable: true }
+              );
+            },
+            text: "Delete",
+            type: "delete",
+            backgroundColor: "#3FA1F6"
+          }
+        ],
+        left: [
+          {
+            onPress: this.handleParentComponent,
+            text: "View",
+            type: "view",
+            backgroundColor: "#3FA1F6"
           },
-          text: "Delete",
-          type: "delete",
-          backgroundColor: "#3FA1F6"
-        }
-      ],
-      left: [
-        {
-          onPress: this.handleParentComponent,
-          text: "View",
-          type: "view",
-          backgroundColor: "#3FA1F6"
-        },
-        {
-          onPress: () => {
-            Alert.alert(
-              "Confirmation",
-              "Are you sure you want to like this user ?",
-              [
-                {
-                  text: "No",
-                  onPress: () => {
-                    console.log("cancel pressed");
+          {
+            onPress: () => {
+              Alert.alert(
+                "Confirmation",
+                "Are you sure you want to like this user ?",
+                [
+                  {
+                    text: "No",
+                    onPress: () => {
+                      console.log("cancel pressed");
+                    },
+                    style: "cancel"
                   },
-                  style: "cancel"
-                },
-                {
-                  text: "Yes",
-                  onPress: this.swipeContact
-                }
-              ],
-              { cancelable: true }
-            );
-          },
-          text: "Like",
-          type: "Like",
-          backgroundColor: "#3FA1F6"
-        }
-      ],
-      rowId: this.props.item.index,
-      sectionId: 1
-    };
+                  {
+                    text: "Yes",
+                    onPress: this.swipeContact
+                  }
+                ],
+                { cancelable: false }
+              );
+            },
+            text: "Like",
+            type: "Like",
+            backgroundColor: "#3FA1F6"
+          }
+        ],
+        rowId: this.props.item.index,
+        sectionId: 1
+      };
+    } else {
+      swipeSettings = {
+        autoClose: true,
+        left: [
+          {
+            onPress: this.handleParentComponent,
+            text: "View",
+            type: "view",
+            backgroundColor: "#3FA1F6"
+          }
+        ],
+        rowId: this.props.item.index,
+        sectionId: 1
+      };
+    }
     console.log("before rendering flatlist");
-
-    const { newData } = this.props;
+    // const { newData } = this.props;
     let image = {
-      uri: newData
+      uri: ""
     };
     return (
       <Swipeout {...swipeSettings}>
-        <View style={{ flex: 1, flexDirection: "column" }}>
+        <ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={this._onRefresh.bind(this)}
+            />
+          }
+        >
           <View
             style={{ flex: 1, flexDirection: "row", backgroundColor: "white" }}
           >
             <TouchableOpacity onPress={this.handlePicturePressed.bind(this)}>
               <Image
-                source={image.uri === "" ? images.user : image}
+                source={StringUtil.isEmpty(image.uri) ? images.user : image}
                 style={flatStyles.imgStyle}
               />
             </TouchableOpacity>
@@ -266,7 +296,7 @@ class FlatListItem extends React.Component {
             </View>
           </View>
           <View style={{ height: 1, backgroundColor: "#DEDEDE" }} />
-        </View>
+        </ScrollView>
       </Swipeout>
     );
   }

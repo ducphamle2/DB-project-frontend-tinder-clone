@@ -28,7 +28,7 @@ class SideBar extends Component {
   getProfile() {
     const { navigate } = this.props.navigation;
     const { email } = this.props;
-    navigate('Profile', { email });
+    navigate('Profile', this.props.navigation);
   }
 
   getFeedback() {
@@ -38,7 +38,7 @@ class SideBar extends Component {
 
   getSettings() {
     const { navigate } = this.props.navigation;
-    navigate('Example');
+    navigate('PasswordChanger');
   }
 
   setupPictures() {
@@ -61,12 +61,10 @@ class SideBar extends Component {
     const { dispatch } = this.props;
     console.log('Confirm logout !!!!!!!!!!!!');
     DataAsync.removeData(myLoginConstant.REMEMBER_USERNAME);
+    DataAsync.removeData(myLoginConstant.REMEMBER_EMAIL);
     DataAsync.removeData(myLoginConstant.REMEMBER_ACCOUNT);
-    DataAsync.removeData(myLoginConstant.REMEMBER_AGE);
-    DataAsync.removeData(myLoginConstant.REMEMBER_PHONENUM);
-    DataAsync.removeData(myLoginConstant.REMEMBER_GENDER);
-    DataAsync.removeData(myLoginConstant.REMEMBER_CITY);
     DataAsync.removeData(myLoginConstant.TOKEN);
+    DataAsync.removeData(myLoginConstant.REMEMBER_ID);
     dispatch(LoginAction.clearLoginState());
   }
 
@@ -86,7 +84,7 @@ class SideBar extends Component {
   }
 
   render() {
-    const { email } = this.props;
+    const { email, username } = this.props;
     const { container, sbInfo, userInfoNav } = styles;
     const { isConfirm } = this.state;
     return (
@@ -106,11 +104,10 @@ class SideBar extends Component {
                 {!StringUtil.isEmpty(email) ? (
                   <ImageProfile
                     url={this.props.image[0]}
-                    cameraUrl={images.camera}
                     content={
-                      !StringUtil.isEmpty(email)
-                        ? 'Phạm Lê Đức'
-                        : ''
+                      !StringUtil.isEmpty(username)
+                        ? username
+                        : 'Duc Pham'
                     }
 
                   />
@@ -136,9 +133,9 @@ class SideBar extends Component {
                 {/* </TouchableOpacity> */}
                 {/* onPress={this.navigateToScreen('SetUp')}  */}
                 <IconSidebar
-                  source={images.settingIcon}
+                  source={images.lock}
                   onPress={this.getSettings.bind(this)}
-                  content={'settings'}
+                  content={'Change password'}
                 />
                 {/* onPress={this.navigateToScreen('HelpAndFeadBack')}  */}
                 <IconSidebar
@@ -169,5 +166,6 @@ class SideBar extends Component {
 export default connect(state => ({
   isLoginSuccess: state.LoginReducer.isLoginSuccess,
   email: state.LoginReducer.email,
+  username: state.LoginReducer.username,
   image: state.UserInfoReducer.image,
 }))(SideBar);

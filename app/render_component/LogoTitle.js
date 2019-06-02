@@ -15,7 +15,8 @@ import UserInfoAction from "../redux/actions/UserInfoAction";
 
 // this class is used to get custom component for the header (dropdown)
 class LogoTitle extends Component {
-  componentWillMount() {}
+  componentWillMount() {
+  }
 
   changeText() {}
 

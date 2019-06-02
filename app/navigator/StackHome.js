@@ -7,6 +7,8 @@ import FeedbackDetail from '../navigation_components/FeedbackDetail';
 import UserDetail from '../navigation_components/UserDetail';
 import RenderPictures from '../render_component/RenderPictures';
 import SetupPictures from '../navigation_components/SetupPictures';
+import Notification from '../navigation_components/Notification';
+import PasswordChanger from '../navigation_components/PasswordChanger';
 
 const RootStack = createStackNavigator({
     StackNavigator: {
@@ -135,6 +137,40 @@ const RootStack = createStackNavigator({
             headerTintColor: '#FFFFFF',
         })
     },
+    Notification: {
+        screen: Notification,
+        navigationOptions: ({ navigation }) => ({
+            title: 'Notification',
+            headerTitleStyle: {
+                fontWeight: 'bold',
+                textAlign: 'center',
+                flex: 1,
+                marginRight: 60
+            },
+            headerStyle: {
+                backgroundColor: '#3FA1F6',
+                zIndex: 100
+            },
+            headerTintColor: '#FFFFFF',
+        })
+    },
+    PasswordChanger: {
+        screen: PasswordChanger,
+        navigationOptions: ({ navigation }) => ({
+            title: 'Change your password',
+            headerTitleStyle: {
+                fontWeight: 'bold',
+                textAlign: 'center',
+                flex: 1,
+                marginRight: 60
+            },
+            headerStyle: {
+                backgroundColor: '#3FA1F6',
+                zIndex: 100
+            },
+            headerTintColor: '#FFFFFF',
+        })
+    }
 });
 
 const StackHome = createAppContainer(RootStack);

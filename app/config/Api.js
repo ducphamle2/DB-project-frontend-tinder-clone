@@ -4,10 +4,13 @@ const url = {
   REGISTER: 'register',
   GET_INFO: 'user/filter',
   GET_ONE_INFO: 'user',
-  SET_INFO: 'setInfo',
+  SET_INFO: 'user/update/',
   FEEDBACK: 'feedback',
   SWIPE: 'user',
   LIKED: 'user/liked',
+  CHANGE_PASSWORD: 'user/changepass/',
+  GET_NOTIFICATION: 'noti',
+  MARK_READ: 'noti/seen'
 };
 
 function login(payload, callback) {
@@ -68,9 +71,9 @@ function getOneInfo(payload, callback) {
 
 function setInfo(payload, callback) {
   axios({
-    method: 'POST',
-    url: url.SET_INFO,
-    data: payload
+    method: 'PUT',
+    url: url.SET_INFO + payload.id,
+    data: payload.data,
   })
     .then(response => {
       callback(true, response, null);
@@ -151,6 +154,47 @@ function getLikedUsers(callback) {
     });
 }
 
+function changePassword(payload, callback) {
+  axios({
+    method: 'PUT',
+    url: url.CHANGE_PASSWORD + payload.id,
+    data: payload.data,
+  })
+    .then(response => {
+      callback(true, response, null);
+    })
+    .catch(error => {
+      callback(false, null, error);
+    });
+}
+
+function getNotification(callback) {
+  axios({
+    method: 'GET',
+    url: url.GET_NOTIFICATION,
+    })
+    .then(response => {
+      callback(true, response, null);
+    })
+    .catch(error => {
+      callback(false, null, error);
+    });
+}
+
+function markAsRead(payload, callback) {
+  axios({
+    method: 'PUT',
+    url: url.MARK_READ,
+    data: payload,
+    })
+    .then(response => {
+      callback(true, response, null);
+    })
+    .catch(error => {
+      callback(false, null, error);
+    });
+}
+
 const api = {
   login,
   register,
@@ -162,6 +206,9 @@ const api = {
   getOneInfo,
   swipe,
   getLikedUsers,
+  changePassword,
+  getNotification,
+  markAsRead,
 }
 
 export default api;

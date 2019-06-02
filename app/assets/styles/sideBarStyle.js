@@ -5,7 +5,8 @@ const { height, width } = Dimensions.get('window');
 const styles = StyleSheet.create({
     container: {
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        justifyContent: 'center',
         // flex: 1
     },
     sbInfo: { marginTop: height / 10 },

@@ -1,12 +1,11 @@
 
 export const myLoginConstant = {
   TOKEN: 'token',
-  REMEMBER_USERNAME: 'email',
+  REMEMBER_USERNAME: 'username',
+  REMEMBER_EMAIL: 'email',
   REMEMBER_ACCOUNT: 'isRemember',
+  REMEMBER_PASSWORD: 'password',
   REMEMBER: 'remember',
   X_KEY: 'x_key',
-  REMEMBER_AGE: 'age',
-  REMEMBER_PHONENUM: 'phoneNumber',
-  REMEMBER_GENDER: 'gender',
-  REMEMBER_CITY: 'city',
+  REMEMBER_ID: 'id',
 };
