@@ -89,14 +89,11 @@ class PasswordChanger extends Component {
     if (isSuccess) {
 			console.log("response: ", response);
 			const remember = await DataAsync.getData(myLoginConstant.REMEMBER_ACCOUNT);
-			const payload = this.state.changePassword;
+			const payload = this.state.newpassword;
 			if (remember !== null) { // if remember !== null then we need to store our new password into async and redux
 				DataAsync.setData(myLoginConstant.REMEMBER_PASSWORD, this.state.newpassword);
-				this.props.dispatch(LoginAction.setPassword(payload));
 			}
-			else { //if user does not tick remember => only store in redux to use
-				this.props.dispatch(LoginAction.setPassword(payload));
-			}
+      this.props.dispatch(LoginAction.setPassword(payload));
 			Alert.alert(
 				"Notification",
 				"You have changed your password successfully",

@@ -38,11 +38,11 @@ class Login extends Component {
     super(props);
     // state is set because username & password will change a lot
     this.state = {
-      email: "antimage_is_here@gmail.com",
+      //mail: "antimage_is_here@gmail.com",
       //password: 'Pabcdef3#',
       //email: 'how_are_you@gmail.com',
       password: "123456",
-      //email: 'ducpham@gmail.com',
+      email: 'ducphamle212@gmail.com',
       //password: '123456',
       loginErrorMessage: "",
       color: "#DB1E4A",

@@ -7,7 +7,8 @@ import {
   FlatList,
   Dimensions,
   Alert,
-  Button
+  Button,
+  ActivityIndicator
 } from "react-native";
 import images from "../assets/image_source/Images";
 import Swipeout from "react-native-swipeout";
@@ -25,6 +26,7 @@ import DataAsync from "../utils/DataAsync";
 import { myLoginConstant } from "../utils/Constants";
 import LoginAction from "../redux/actions/LoginAction";
 import socketIO from "socket.io-client";
+import TitleName from "../render_component/TitleName";
 
 const KEYS_TO_FILTERS = ["username"]; // key used in filter
 
@@ -60,12 +62,16 @@ class Home extends Component {
       data: "",
       array: [],
       isClicked: false,
-      title: ""
+      title: "",
+      loading: false,
+      page: 1,
+      refreshing: false
     };
     this.handleAddButton = this.handleAddButton.bind(this);
     this.extractImageUrlFilter = this.extractImageUrlFilter.bind(this);
     this.getIndex = this.getIndex.bind(this);
     this.handleSocket = this.handleSocket.bind(this);
+    this.extractHeaderFilter = this.extractHeaderFilter.bind(this);
   }
 
   /* this will call the api to get all the information we need about possible liked candidates including pictures, names, etc...
@@ -84,7 +90,7 @@ class Home extends Component {
   async componentWillMount() {
     const { dispatch, id, password, email } = this.props;
     console.log("before getting likable users");
-    await api.getInfo(this.onGetInfoHandle.bind(this));
+    //await api.getInfo(this.onGetInfoHandle.bind(this));
     if (
       StringUtil.isEmpty(id) ||
       StringUtil.isEmpty(password) ||
@@ -95,11 +101,13 @@ class Home extends Component {
       const password = await DataAsync.getData(
         myLoginConstant.REMEMBER_PASSWORD
       );
-      const username = await DataAsync.getData(myLoginConstant.REMEMBER_USERNAME);
+      const username = await DataAsync.getData(
+        myLoginConstant.REMEMBER_USERNAME
+      );
       const email = await DataAsync.getData(myLoginConstant.REMEMBER_EMAIL);
       console.log("userID when remembering: ", id);
       console.log("user password when remembering: ", password);
-      const payload = {username, id, email, password };
+      const payload = { username, id, email, password };
       //dispatch(LoginAction.setId(userId)); // set id for Profile to use
       dispatch(LoginAction.setUserInfo(payload));
     } else {
@@ -107,7 +115,7 @@ class Home extends Component {
     }
     console.log("id in component will mount home: ", id);
 
-    dispatch(UserInfoAction.updateTitle("People you may like"));
+    dispatch(UserInfoAction.updateTitle(TitleName.firstTitle));
   }
 
   componentDidMount() {
@@ -150,9 +158,28 @@ class Home extends Component {
 
   onGetInfoHandle(isSuccess, response, error) {
     if (isSuccess) {
-      this.setState({ array: response.data, title: this.props.title });
+      this.setState({
+        array: response.data,
+        title: this.props.title,
+        loading: false,
+        refreshing: false
+      });
     } else {
       console.log("error in Home: ", error);
+      Alert.alert(
+        "Notification",
+        "There is something wrong when getting likable users !!",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              console.log("OK pressed");
+            },
+            style: "cancel"
+          }
+        ],
+        { cancelable: false }
+      );
     }
     // this.extractImageUrlFilter(); //extract url for images
   }
@@ -160,9 +187,55 @@ class Home extends Component {
   onHandleLikedUsers(isSuccess, response, error) {
     if (isSuccess) {
       console.log("response LIKED USERRRRRRRRRRRRRRRR: ", response);
-      this.setState({ array: response.data, title: this.props.title });
+      this.setState({
+        array: response.data,
+        title: this.props.title,
+        loading: false,
+        refreshing: false
+      });
     } else {
       console.log("error: ", error);
+      Alert.alert(
+        "Notification",
+        "There is something wrong with getting liked users",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              console.log("OK pressed");
+            },
+            style: "cancel"
+          }
+        ],
+        { cancelable: false }
+      );
+    }
+  }
+
+  onHandleMatched(isSuccess, response, error) {
+    if (isSuccess) {
+      console.log("response LIKED USERRRRRRRRRRRRRRRR: ", response);
+      this.setState({
+        array: response.data,
+        title: this.props.title,
+        loading: false,
+        refreshing: false
+      });
+    } else {
+      Alert.alert(
+        "Notification",
+        "There is something wrong with getting matched users",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              console.log("OK pressed");
+            },
+            style: "cancel"
+          }
+        ],
+        { cancelable: false }
+      );
     }
   }
 
@@ -171,14 +244,7 @@ class Home extends Component {
   }
 
   // this function will be used to set state which makes the Home component render again - refresh our list
-  refreshFlatList = async () => {
-    this.setState({ isDeleted: true });
-    if (this.props.title === "People you may like") {
-      await api.getInfo(this.onGetInfoHandle.bind(this));
-    } else if (this.props.title === "Liked list") {
-      await api.getLikedUsers(this.onHandleLikedUsers.bind(this));
-    }
-  };
+  refreshFlatList = async () => {};
 
   refresh(trueIndex) {
     const data = this.state.array;
@@ -202,6 +268,46 @@ class Home extends Component {
       />
     );
   };
+
+  // this helps rendering a loading indicator for responsive frontend
+  renderFooter = () => {
+    if (!this.state.loading) return null;
+    return (
+      <View
+        style={{
+          paddingVertical: 20,
+          borderTopWidth: 1,
+          borderTopColor: "#CED0CE"
+        }}
+      >
+        <ActivityIndicator animating size="medium" />
+      </View>
+    );
+  };
+
+  handleLoadMore() {
+    console.log("LOADMORERRRRRRRRRRRRRRR");
+    if (this.props.title === TitleName.firstTitle) {
+      setTimeout(async () => {
+        await api.getInfo(this.onGetInfoHandle.bind(this));
+      }, 500);
+    } else if (this.props.title === TitleName.secondTitle) {
+      setTimeout(async () => {
+        await api.getLikedUsers(this.onHandleLikedUsers.bind(this));
+      }, 500);
+    }
+  }
+
+  _onRefresh() {
+    console.log("REFRESHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh");
+    this.setState({ refreshing: true }, async () => {
+      if (this.props.title === TitleName.firstTitle) {
+        await api.getInfo(this.onGetInfoHandle.bind(this));
+      } else if (this.props.title === TitleName.secondTitle) {
+        await api.getLikedUsers(this.onHandleLikedUsers.bind(this));
+      }
+    });
+  }
 
   // this function is used to extract the header of an array object for flat list render
   extractHeaderFilter(filteredUser) {
@@ -233,9 +339,9 @@ class Home extends Component {
   }
 
   // this function will return the correct index of items in flatListItems
-  getIndex(headerData, item) {
-    for (let i = 0; i < headerData.length; i++) {
-      if (item === headerData[i]) {
+  getIndex(data, item) {
+    for (let i = 0; i < data.length; i++) {
+      if (item === data[i].username) {
         return i;
       }
     }
@@ -258,14 +364,20 @@ class Home extends Component {
       console.log("empty title before rendering home");
     } else {
       console.log("this.state.title: ", this.state.title);
-      if (title === "People you may like" && this.state.title !== title) {
+      if (title === TitleName.firstTitle && this.state.title !== title) {
         console.log("before getting likable users");
         api.getInfo(this.onGetInfoHandle.bind(this));
-      } else if (title === "Liked list" && this.state.title !== title) {
+      } else if (
+        title === TitleName.secondTitle &&
+        this.state.title !== title
+      ) {
         // testingggggggggggggggggggggggggggggggggggggg
         api.getLikedUsers(this.onHandleLikedUsers.bind(this));
+      } else if (title === TitleName.thirdTitle && this.state.title !== title) {
+        console.log("matched list");
+        api.getMatched(this.onHandleMatched.bind(this));
       } else {
-        console.log("Unliked list");
+        console.log("neither");
       }
     }
 
@@ -275,7 +387,7 @@ class Home extends Component {
           style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
         >
           <Button
-            onPress={this.refreshFlatList.bind(this)}
+            onPress={this._onRefresh.bind(this)}
             title="Click to refresh"
           />
         </View>
@@ -291,7 +403,7 @@ class Home extends Component {
             renderItem={(item, index) => {
               //console.log('Item: ', item.item); //item is an object which consists of item name, item index, ...
               //console.log('index: ', item.index);
-              let i = this.getIndex(headerData, item.item);
+              let i = this.getIndex(filteredUser, item.item);
               //console.log('correct index in fake dataaaaaaaaa: ', i);
               //console.log('correct data: ', array[i]);
               return (
@@ -303,13 +415,19 @@ class Home extends Component {
                   data={FakeData.data}
                   //newData={FakeData.data[i].uri[0].uri}
                   trueIndex={i} // true index of an item in our data sent by api
-                  trueData={this.state.array}
+                  trueData={filteredUser}
                   title={this.props.title}
                   //data={this.state.array}
                 />
               );
             }}
             ListHeaderComponent={this.renderHeader}
+            ListFooterComponent={this.renderFooter}
+            refreshing={this.state.refreshing}
+            onRefresh={this._onRefresh.bind(this)}
+            //onEndReached={this.handleLoadMore.bind(this)}
+            onScrollEndDrag={this.handleLoadMore.bind(this)}
+            onEndReachedThreshold={10}
             keyExtractor={(item, index) => index.toString()}
           />
           <ActionButton

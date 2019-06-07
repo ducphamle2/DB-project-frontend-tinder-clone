@@ -6,7 +6,8 @@ import {
   Image,
   FlatList,
   Dimensions,
-  Alert
+  Alert,
+  TouchableOpacity
 } from "react-native";
 import images from "../assets/image_source/Images";
 import Swipeout from "react-native-swipeout";
@@ -23,25 +24,136 @@ import StringUtil from "../utils/StringUtils";
 import DataAsync from "../utils/DataAsync";
 import { myLoginConstant } from "../utils/Constants";
 import LoginAction from "../redux/actions/LoginAction";
+import Tick from "../render_component/Tick";
+
 const { width, height } = Dimensions.get("window");
 
 export default class Notification extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
       notifications: [],
-    }
-    this.refreshList = this.refreshList.bind(this);
+      loading: false,
+      page: 1,
+      refreshing: false
+    };
   }
+
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: "Notification",
+      headerTitleStyle: {
+        fontWeight: "bold",
+        textAlign: "center",
+        flex: 1,
+        marginRight: 60
+      },
+      headerStyle: {
+        backgroundColor: "#3FA1F6",
+        zIndex: 100
+      },
+      headerTintColor: "#FFFFFF",
+      headerRight: (
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.state.params.handleMarkAsReadAll();
+            }}
+          >
+            <Image
+              style={{ marginRight: 5, tintColor: "#FFFFFF" }}
+              source={images.list}
+            />
+          </TouchableOpacity>
+        </View>
+      )
+    };
+  };
 
   componentWillMount() {
     api.getNotification(this.onHandleGetNotification.bind(this));
   }
 
+  // replicate CWP notification file
+  componentDidMount() {
+    this.props.navigation.setParams({
+      handleMarkAsReadAll: () => this.markAsReadAll()
+    });
+  }
+
   onHandleGetNotification(isSuccess, response, error) {
     if (isSuccess) {
-      this.setState({notifications: response.data});
+      this.setState({
+        notifications: response.data,
+        loading: false,
+        refreshing: false
+      });
+    }
+  }
+
+  // this function will mark all the notifications as read
+  async markAsReadAll() {
+    console.log("notifications currently: ", this.state.notifications);
+    let payload = {
+      notiIds: []
+    };
+    for (let i = 0; i < this.state.notifications.length; i++) {
+      if (this.state.notifications[i].status === "unseen") {
+        // check if any noti is unseen so add into a list
+        payload.notiIds.push(this.state.notifications[i].id); // has to be this type of data to match
+      }
+    }
+
+    console.log("payload after checking: ", payload);
+    if (payload.notiIds.length === 0) {
+      Alert.alert(
+        "Notification",
+        "All the notifications have been read before !!",
+        [
+          {
+            text: "OK",
+            onPress: () => {},
+            style: "cancel"
+          }
+        ],
+        { cancelable: false }
+      );
+    } else {
+      await api.markAsRead(payload, this.onHandleMarkAllRead.bind(this)); // mark all the noti in the list as read
+    }
+  }
+
+  onHandleMarkAllRead(isSuccess, response, error) {
+    if (isSuccess) {
+      Alert.alert(
+        "Notification",
+        "Successfully read all the notifications !",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              this.props.navigation.navigate("Home");
+            },
+            style: "cancel"
+          }
+        ],
+        { cancelable: false }
+      );
+    } else {
+      Alert.alert(
+        "Notification",
+        "Something is wrong !",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              this.props.navigation.navigate("Home");
+            },
+            style: "cancel"
+          }
+        ],
+        { cancelable: false }
+      );
     }
   }
 
@@ -53,8 +165,32 @@ export default class Notification extends Component {
     return headerData;
   }
 
-  async refreshList() {
-    await api.getNotification(this.onHandleGetNotification.bind(this));
+  // this helps rendering a loading indicator for responsive frontend
+  renderFooter = () => {
+    if (!this.state.loading) return null;
+    return (
+      <View
+        style={{
+          paddingVertical: 20,
+          borderTopWidth: 1,
+          borderTopColor: "#CED0CE"
+        }}
+      >
+        <ActivityIndicator animating size="medium" />
+      </View>
+    );
+  };
+
+  handleLoadMore() {
+    setTimeout(async () => {
+      await api.getNotification(this.onHandleGetNotification.bind(this));
+    }, 500);
+  }
+
+  _onRefresh() {
+    this.setState({ refreshing: true }, async () => {
+      await api.getNotification(this.onHandleGetNotification.bind(this));
+    });
   }
 
   render() {
@@ -67,8 +203,8 @@ export default class Notification extends Component {
           //backgroundColor: "#3FA1F6",
           maxHeight: height / 2,
           width: width - 30,
-					justifyContent: 'center',
-					flexDirection: 'column',
+          justifyContent: "center",
+          flexDirection: "column"
         }}
       >
         <FlatList
@@ -94,6 +230,11 @@ export default class Notification extends Component {
               />
             );
           }}
+          ListFooterComponent={this.renderFooter}
+          refreshing={this.state.refreshing}
+          onRefresh={this._onRefresh.bind(this)}
+          onScrollEndDrag={this.handleLoadMore.bind(this)}
+          onEndReachedThreshold={10}
           keyExtractor={(item, index) => index.toString()}
         />
       </View>

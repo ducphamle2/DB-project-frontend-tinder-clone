@@ -60,7 +60,10 @@ export default class Feedback extends Component {
     this.state = {
       isDeleted: false,
       data: [],
-      isUpdated: false
+      trueData: [],
+      loading: false,
+      page: 1,
+      refreshing: false
     };
     this.handleAddButton = this.handleAddButton.bind(this);
   }
@@ -78,14 +81,18 @@ export default class Feedback extends Component {
   onHandleGetFeedback(isSuccess, response, error) {
     if (isSuccess) {
       if (response.data.length === 0) {
-        this.setState({ data: response.data }); // if no data then get that array
+        this.setState({
+          data: response.data,
+          loading: false,
+          refreshing: false
+        }); // if no data then get that array
         console.log("data empty");
       } else {
         const temp = [];
         for (let i = 0; i < response.data.length; i++) {
-          temp[i] = response.data[i].content; //get the content of data
+          temp[i] = response.data[i].header; //get the content of data
         }
-        this.setState({ data: temp });
+        this.setState({ data: temp, loading: false, refreshing: false, trueData: response.data });
       }
     } else {
       console.log("error: ", error);
@@ -93,55 +100,86 @@ export default class Feedback extends Component {
   }
 
   // this function will be used to set state which makes the Home component render again - refresh our list
-  refreshFlatList = () => {
+  refreshFlatList = async () => {
     this.setState({ isDeleted: true });
-    api.getFeedback(this.onHandleGetFeedback.bind(this));
+    await api.getFeedback(this.onHandleGetFeedback.bind(this));
   };
 
-  render() {
-    const { data } = this.state;
-    if (data.length === 0) {
-      return (
-        <View
-          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
-        >
-          <Button
-            onPress={this.refreshFlatList.bind(this)}
-            title="Click to refresh"
-          />
-        </View>
-      );
-    } else {
-      return (
-        <View style={{ flex: 1 }}>
-          <FlatList
-            data={data}
-            renderItem={(item, index) => {
-              console.log("Item: ", item.item); //item is an object which consists of item name, item index, ...
-              console.log("index: ", item.index);
-              return (
-                // parentFlatList
-                // need to pass an array of object pic url, and then we scan its index
-                // in the FlatListItem. If it matched then we get that url from that index.
-                <FlatListItem
-                  item={item}
-                  index={index}
-                  refresh={this}
-                  flag={false}
-                  data={data}
-                />
-              );
-            }}
-            keyExtractor={(item, index) => index.toString()}
-          />
-          <ActionButton
-            buttonColor="#DF2929"
-            onPress={this.handleAddButton.bind()}
-          />
+  // this helps rendering a loading indicator for responsive frontend
+  renderFooter = () => {
+    if (!this.state.loading) return null;
+    return (
+      <View
+        style={{
+          paddingVertical: 20,
+          borderTopWidth: 1,
+          borderTopColor: "#CED0CE"
+        }}
+      >
+        <ActivityIndicator animating size="medium" />
+      </View>
+    );
+  };
 
-          <ModalFeedback ref={"addModal"} parentFlatList={this} />
-        </View>
-      );
+  handleLoadMore() {
+    setTimeout(async () => {
+      await api.getFeedback(this.onHandleGetFeedback.bind(this));
+    }, 500);
+  }
+
+  _onRefresh() {
+    this.setState({ refreshing: true }, () => {
+      this.refreshFlatList();
+    });
+  }
+
+  // this function will return the correct index of items in flatListItems
+  getIndex(headerData, item) {
+    for (let i = 0; i < headerData.length; i++) {
+      if (item === headerData[i]) {
+        return i;
+      }
     }
+  }
+
+  render() {
+    const { data, trueData } = this.state;
+    return (
+      <View style={{ flex: 1 }}>
+        <FlatList
+          data={data}
+          renderItem={(item, index) => {
+            console.log("Item: ", item.item); //item is an object which consists of item name, item index, ...
+            console.log("index: ", item.index);
+            let i = this.getIndex(data, item.item);
+            return (
+              // parentFlatList
+              // need to pass an array of object pic url, and then we scan its index
+              // in the FlatListItem. If it matched then we get that url from that index.
+              <FlatListItem
+                item={item}
+                index={index}
+                refresh={this}
+                flag={false}
+                trueData={trueData}
+                trueIndex={i}
+              />
+            );
+          }}
+          ListFooterComponent={this.renderFooter}
+          refreshing={this.state.refreshing}
+          onRefresh={this._onRefresh.bind(this)}
+          onScrollEndDrag={this.handleLoadMore.bind(this)}
+          onEndReachedThreshold={10}
+          keyExtractor={(item, index) => index.toString()}
+        />
+        <ActionButton
+          buttonColor="#DF2929"
+          onPress={this.handleAddButton.bind()}
+        />
+
+        <ModalFeedback ref={"addModal"} parentFlatList={this} navigation={this.props.navigation} />
+      </View>
+    );
   }
 }

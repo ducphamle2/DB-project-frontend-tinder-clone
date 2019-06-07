@@ -10,7 +10,8 @@ const url = {
   LIKED: 'user/liked',
   CHANGE_PASSWORD: 'user/changepass/',
   GET_NOTIFICATION: 'noti',
-  MARK_READ: 'noti/seen'
+  MARK_READ: 'noti/seen',
+  MATCH: 'user/matched',
 };
 
 function login(payload, callback) {
@@ -195,6 +196,19 @@ function markAsRead(payload, callback) {
     });
 }
 
+function getMatched(callback) {
+  axios({
+    method: 'GET',
+    url: url.MATCH,
+    })
+    .then(response => {
+      callback(true, response, null);
+    })
+    .catch(error => {
+      callback(false, null, error);
+    });
+}
+
 const api = {
   login,
   register,
@@ -209,6 +223,7 @@ const api = {
   changePassword,
   getNotification,
   markAsRead,
+  getMatched,
 }
 
 export default api;

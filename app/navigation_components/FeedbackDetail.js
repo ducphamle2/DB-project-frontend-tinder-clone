@@ -29,7 +29,7 @@ export default class FeedbackDetail extends Component {
                             Header
                         </Text>
                         <Text style={{ marginLeft: 55, marginRight: 10, marginTop: 20, fontSize: 15}}>
-                        {params.response}
+                        {params.header}
                         </Text>
                         <Text style={[{
                             marginLeft: 55,
@@ -41,6 +41,17 @@ export default class FeedbackDetail extends Component {
                         </Text>
                         <Text style={{ marginLeft: 55, marginRight: 10, marginTop: 20, fontSize: 15 }}>
                             {params.content}
+                        </Text>
+                        <Text style={[{
+                            marginLeft: 55,
+                            marginTop: 20,
+                            fontSize: 20,
+                        },
+                            loginText]}>
+                            Feedback sent time
+                        </Text>
+                        <Text style={{ marginLeft: 55, marginRight: 10, marginTop: 20, fontSize: 15 }}>
+                            {params.createdAt}
                         </Text>
                     </View>
                 </View>

@@ -12,6 +12,7 @@ import menuIcon from '../images/menuIcon.png'
 import camera from '../images/camera.png'
 import alarm from '../images/alarm.png'
 import lock from '../images/lock.png'
+import list from '../images/list.png'
 
 const images = {
     loginBackGround,
@@ -28,6 +29,7 @@ const images = {
     camera,
     alarm,
     lock,
+    list,
 }
 
 export default images;

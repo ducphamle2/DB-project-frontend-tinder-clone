@@ -12,6 +12,7 @@ import DropdownMenu from "react-native-dropdown-menu";
 import { Dropdown } from "react-native-material-dropdown";
 import { connect } from "react-redux";
 import UserInfoAction from "../redux/actions/UserInfoAction";
+import TitleName from '../render_component/TitleName'
 
 // this class is used to get custom component for the header (dropdown)
 class LogoTitle extends Component {
@@ -23,13 +24,13 @@ class LogoTitle extends Component {
   render() {
     let data = [
       {
-        value: "People you may like"
+        value: TitleName.firstTitle
       },
       {
-        value: "Liked list"
+        value: TitleName.secondTitle
       },
       {
-        value: "Matched list"
+        value: TitleName.thirdTitle
       }
     ];
 

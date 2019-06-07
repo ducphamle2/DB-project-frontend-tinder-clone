@@ -41,8 +41,6 @@ class Profile extends Component {
   // this will be used to check state values before rendering.
   // send username with token to receive information
   async componentWillMount() {
-    const username = this.props.navigation.getParam("username");
-    console.log("before rendering: ", username);
     // we need to call api to get user info first, after that use data async to store.
     console.log("id in will mount profileeeeeeeeeee: ", this.props.id);
     const payload = this.props.id; // if redux is null then we take from data sync
@@ -52,14 +50,15 @@ class Profile extends Component {
   onGetCurrentUser(isSuccess, response, error) {
     if (isSuccess) {
       console.log("response: ", response);
-      const { dob, phoneNumber, gender, city, facebookLink } = response.data;
+      const { age, phoneNumber, gender, city, facebookLink } = response.data;
       this.setState({
-        age: dob,
+        age: age,
         phoneNumber: phoneNumber,
         gender: gender,
         city: city,
         facebookLink: facebookLink
       });
+      console.log("state: ", this.state.age);
     } else {
       console.log("error: ", error);
     }
@@ -91,7 +90,10 @@ class Profile extends Component {
       validation.isNumber(phoneNumber) &&
       (gender === "F" || gender === "M") &&
       age >= 10 &&
-      age <= 100
+      age <= 100 &&
+      !StringUtil.isEmpty(phoneNumber) &&
+      !StringUtil.isEmpty(city) &&
+      !StringUtil.isEmpty(facebookLink)
     ) {
       this.setState({ profileErrorMessage: "" });
       //const username = this.props.navigation.getParam('username');
@@ -119,7 +121,7 @@ class Profile extends Component {
         });
       } else {
         this.setState({
-          profileErrorMessage: "Something is wrong !!"
+          profileErrorMessage: "You have to fill all of your information !!"
         });
       }
     }
@@ -128,8 +130,10 @@ class Profile extends Component {
   async onHandleSetInfo(isSuccess, response, error) {
     if (isSuccess) {
       console.log("success: ", response);
-      const remember = await DataAsync.getData(myLoginConstant.REMEMBER_ACCOUNT);
-      console.log("remember on Handle: ", remember);   
+      const remember = await DataAsync.getData(
+        myLoginConstant.REMEMBER_ACCOUNT
+      );
+      console.log("remember on Handle: ", remember);
       Alert.alert(
         "Notification",
         "You have edited your profile successfully",
@@ -210,7 +214,7 @@ class Profile extends Component {
                 //lineHeight={10}
                 returnKeyType="next"
                 onChangeText={txt => this.setState({ age: txt })}
-                value={age}
+                value={age.toString()}
                 maxLength={5}
               />
             </Item>
@@ -241,7 +245,7 @@ class Profile extends Component {
                 underlineColorAndroid="transparent"
                 onChangeText={txt => this.setState({ phoneNumber: txt })}
                 value={phoneNumber}
-                maxLength={15}
+                maxLength={20}
               />
             </Item>
             <Text

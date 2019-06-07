@@ -18,6 +18,7 @@ import ModalFeedback from "../render_component/ModalFeedback";
 import { withNavigation } from "react-navigation";
 import api from "../config/Api";
 import StringUtil from "../utils/StringUtils";
+import TitleName from "../render_component/TitleName";
 
 const { width } = Dimensions.get("window");
 
@@ -90,42 +91,17 @@ class FlatListItem extends React.Component {
   componentWillMount() {}
 
   handleParentComponent() {
-    const { item, trueIndex } = this.props;
+    const { item, trueIndex, trueData } = this.props;
     if (this.props.flag) {
-      const { trueData } = this.props;
       console.log("array in handleParentComponent: ", trueData);
+      console.log('true index ????: ', trueIndex);
       let id = trueData[trueIndex].id;
       console.log("true data correct index ID: ", id);
       console.log("true name: ", trueData[trueIndex].username);
       this.props.navigation.navigate("UserDetail", trueData[trueIndex]); // it should be the entire item not just name
     } else {
-      // if the caller is from Feedback
-      const response = [
-        {
-          header: "App quality",
-          response:
-            "Noobaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        },
-        {
-          header: "App performance",
-          response: "Noob2"
-        },
-        {
-          header: "report on bugs",
-          response: "Noob3"
-        }
-      ];
-      let header = null;
-      let i = 0;
-      for (i = 0; i < response.length; i++) {
-        console.log("response: ", response[i]);
-        if (item.item === response[i].header) {
-          //header = response[i].header;
-          header = response[i];
-        }
-      }
-      console.log("response[i]", header);
-      this.props.navigation.navigate("FeedbackDetail", header);
+      console.log("true data: ", trueData[trueIndex]);
+      this.props.navigation.navigate("FeedbackDetail", trueData[trueIndex]);
       //this.props.navigation.navigate('FeedbackDetail', header); Send header to call api in the detail
     }
   }
@@ -139,7 +115,7 @@ class FlatListItem extends React.Component {
 
   async swipeContact() {
     const { trueData, trueIndex } = this.props;
-    console.log("true data in swipe contact: ", trueData);
+    console.log("true data in swipe contact: ", trueData); // check the correct data in our array
     if (this.state.status === "liked") {
       console.log("liked");
       const payload = {
@@ -173,10 +149,10 @@ class FlatListItem extends React.Component {
 
   _onRefresh() {
     const { refresh } = this.props;
-    this.setState({ refreshing: true });
+    this.setState({ refreshing: true }); // set to true so the refreshing icon starts to appear
     console.log("before ending refresh");
     refresh.refreshFlatList();
-    this.setState({ refreshing: false });
+    this.setState({ refreshing: false }); // after refreshing we need to set it back to false to close
   }
 
   render() {
@@ -184,7 +160,7 @@ class FlatListItem extends React.Component {
     // these will be the headers
     var swipeSettings = {};
     // if user choose likable users => they can like. When it comes to liked users they cannot do anything
-    if (title === "People you may like") {
+    if (title === TitleName.firstTitle) {
       swipeSettings = {
         autoClose: true,
         right: [
@@ -272,14 +248,7 @@ class FlatListItem extends React.Component {
     };
     return (
       <Swipeout {...swipeSettings}>
-        <ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={this._onRefresh.bind(this)}
-            />
-          }
-        >
+        <ScrollView>
           <View
             style={{ flex: 1, flexDirection: "row", backgroundColor: "white" }}
           >

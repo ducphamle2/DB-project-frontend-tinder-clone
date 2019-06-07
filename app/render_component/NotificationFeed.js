@@ -75,7 +75,7 @@ export default class NotificationFeed extends Component {
 
   onHandleMarkAsRead(isSuccess, response, error) {
     if (isSuccess) {
-      this.props.refresh.refreshList();
+      this.props.refresh._onRefresh();
     }
   }
 
