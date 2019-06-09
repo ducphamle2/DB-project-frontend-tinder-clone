@@ -1,23 +1,25 @@
 import axios from "axios";
 const url = {
-  LOGIN: 'login',
-  REGISTER: 'register',
-  GET_INFO: 'user/filter',
-  GET_ONE_INFO: 'user',
-  SET_INFO: 'user/update/',
-  FEEDBACK: 'feedback',
-  SWIPE: 'user',
-  LIKED: 'user/liked',
-  CHANGE_PASSWORD: 'user/changepass/',
-  GET_NOTIFICATION: 'noti',
-  MARK_READ: 'noti/seen',
-  MATCH: 'user/matched',
+  LOGIN: "login",
+  REGISTER: "register",
+  GET_INFO: "user/filter",
+  GET_ONE_INFO: "user",
+  SET_INFO: "user/update/",
+  FEEDBACK: "feedback",
+  SWIPE: "user",
+  LIKED: "user/liked",
+  CHANGE_PASSWORD: "user/changepass/",
+  GET_NOTIFICATION: "noti",
+  MARK_READ: "noti/seen",
+  MATCH: "user/matched",
+  UPLOAD_IMAGE: "image/",
+  GET_IMAGE: "image/"
 };
 
 function login(payload, callback) {
-  console.log('payload at auth: ', payload);
+  console.log("payload at auth: ", payload);
   axios({
-    method: 'POST',
+    method: "POST",
     url: url.LOGIN,
     data: payload
   })
@@ -30,9 +32,9 @@ function login(payload, callback) {
 }
 
 function register(payload, callback) {
-  console.log('payload at register: ', payload);
+  console.log("payload at register: ", payload);
   axios({
-    method: 'POST',
+    method: "POST",
     url: url.REGISTER,
     data: payload
   })
@@ -46,8 +48,8 @@ function register(payload, callback) {
 
 function getInfo(callback) {
   axios({
-    method: 'GET',
-    url: url.GET_INFO,
+    method: "GET",
+    url: url.GET_INFO
   })
     .then(response => {
       callback(true, response, null);
@@ -59,8 +61,8 @@ function getInfo(callback) {
 
 function getOneInfo(payload, callback) {
   axios({
-    method: 'GET',
-    url: url.GET_ONE_INFO + '/' + payload,
+    method: "GET",
+    url: url.GET_ONE_INFO + "/" + payload
   })
     .then(response => {
       callback(true, response, null);
@@ -72,9 +74,9 @@ function getOneInfo(payload, callback) {
 
 function setInfo(payload, callback) {
   axios({
-    method: 'PUT',
+    method: "PUT",
     url: url.SET_INFO + payload.id,
-    data: payload.data,
+    data: payload.data
   })
     .then(response => {
       callback(true, response, null);
@@ -86,7 +88,7 @@ function setInfo(payload, callback) {
 
 function addUser(payload, callback) {
   axios({
-    method: 'POST',
+    method: "POST",
     url: url.FEEDBACK,
     data: payload
   })
@@ -100,8 +102,8 @@ function addUser(payload, callback) {
 
 function getFeedback(callback) {
   axios({
-    method: 'GET',
-    url: url.FEEDBACK,
+    method: "GET",
+    url: url.FEEDBACK
   })
     .then(response => {
       callback(true, response, null);
@@ -113,9 +115,9 @@ function getFeedback(callback) {
 
 function getOneFeedback(payload, callback) {
   axios({
-    method: 'POST',
+    method: "POST",
     url: url.FEEDBACK,
-    data: payload,
+    data: payload
   })
     .then(response => {
       callback(true, response, null);
@@ -128,24 +130,24 @@ function getOneFeedback(payload, callback) {
 function swipe(payload, callback) {
   const data = {
     status: payload.status
-  }
+  };
   axios({
-    method: 'PUT',
-    url: url.SWIPE + '/' + payload.url,
+    method: "PUT",
+    url: url.SWIPE + "/" + payload.url,
     data: data
   })
-  .then(response => {
-    callback(true, response, null);
-  })
-  .catch(error => {
-    callback(false, null, error);
-  });
+    .then(response => {
+      callback(true, response, null);
+    })
+    .catch(error => {
+      callback(false, null, error);
+    });
 }
 
 function getLikedUsers(callback) {
   axios({
-    method: 'GET',
-    url: url.LIKED,
+    method: "GET",
+    url: url.LIKED
   })
     .then(response => {
       callback(true, response, null);
@@ -157,9 +159,9 @@ function getLikedUsers(callback) {
 
 function changePassword(payload, callback) {
   axios({
-    method: 'PUT',
+    method: "PUT",
     url: url.CHANGE_PASSWORD + payload.id,
-    data: payload.data,
+    data: payload.data
   })
     .then(response => {
       callback(true, response, null);
@@ -171,9 +173,9 @@ function changePassword(payload, callback) {
 
 function getNotification(callback) {
   axios({
-    method: 'GET',
-    url: url.GET_NOTIFICATION,
-    })
+    method: "GET",
+    url: url.GET_NOTIFICATION
+  })
     .then(response => {
       callback(true, response, null);
     })
@@ -184,10 +186,10 @@ function getNotification(callback) {
 
 function markAsRead(payload, callback) {
   axios({
-    method: 'PUT',
+    method: "PUT",
     url: url.MARK_READ,
-    data: payload,
-    })
+    data: payload
+  })
     .then(response => {
       callback(true, response, null);
     })
@@ -198,9 +200,42 @@ function markAsRead(payload, callback) {
 
 function getMatched(callback) {
   axios({
-    method: 'GET',
-    url: url.MATCH,
+    method: "GET",
+    url: url.MATCH
+  })
+    .then(response => {
+      callback(true, response, null);
     })
+    .catch(error => {
+      callback(false, null, error);
+    });
+}
+
+function uploadImage(payload, callback) {
+  console.log("payload data: ", payload.data);
+  console.log("payload token: ", payload.token);
+  fetch("https://db-project-backend.herokuapp.com/api/image/", {
+    method: "POST",
+    //headers: {
+    //  Authorization: payload.token
+    //},
+    body: payload.data
+  })
+    .then(response => {
+      response.json().then(data => {
+        console.log("response json: ", data);
+      });
+    })
+    .catch(error => {
+      callback(false, null, error);
+    });
+}
+
+function getImage(payload, callback) {
+  axios({
+    method: "GET",
+    url: url.GET_IMAGE + payload
+  })
     .then(response => {
       callback(true, response, null);
     })
@@ -224,6 +259,8 @@ const api = {
   getNotification,
   markAsRead,
   getMatched,
-}
+  uploadImage,
+  getImage
+};
 
 export default api;

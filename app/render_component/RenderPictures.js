@@ -4,6 +4,7 @@ import Swiper from "react-native-web-swiper";
 import { connect } from "react-redux";
 import StringUtil from "../utils/StringUtils";
 import images from "../assets/image_source/Images";
+import api from "../config/Api";
 const { height, width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
@@ -25,8 +26,19 @@ class RenderPictures extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      messages: []
+      messages: [],
+      redux: false,
     };
+  }
+
+  componentWillMount() {
+    api.getImage(this.props.id, this.onHandleGetImage.bind(this));
+  }
+
+  onHandleGetImage(isSuccess, response, error) {
+    if (isSuccess) {
+      console.log('response: ', response);
+    }
   }
 
   render() {
@@ -121,5 +133,6 @@ class RenderPictures extends React.Component {
 }
 
 export default connect(state => ({
-  image: state.UserInfoReducer.image
+  image: state.UserInfoReducer.image,
+  id: state.LoginReducer.id,
 }))(RenderPictures);

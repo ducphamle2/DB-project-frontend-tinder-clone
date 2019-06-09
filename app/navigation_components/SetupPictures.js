@@ -26,6 +26,7 @@ import DataAsync from "../utils/DataAsync";
 import { myLoginConstant } from "../utils/Constants";
 import UserInfoAction from "../redux/actions/UserInfoAction";
 import ImagePicker from "react-native-image-picker";
+import api from "../config/Api";
 
 const { height, width } = Dimensions.get("window");
 
@@ -75,9 +76,8 @@ class SetupPictures extends Component {
     };
   }
 
-  handleApply() {
+  async handleApply() {
     const { dispatch } = this.props;
-    const { goBack } = this.props.navigation;
     const { imgOne, imgTwo, imgThree } = this.state;
     // if they have not chosen anything => alert wrong
     if (
@@ -101,17 +101,86 @@ class SetupPictures extends Component {
       );
     } else {
       // if they have then we set the state into our reducer so we can use in other components
-      const payload = [
+      const images = [
         this.state.imgOne,
         this.state.imgTwo,
         this.state.imgThree
       ];
-      console.log("payload before dispatch: ", payload);
-      dispatch(UserInfoAction.updateImage(payload));
-      console.log("image dispatch: ", payload);
+      console.log("payload before dispatch: ", images);
+      dispatch(UserInfoAction.updateImage(images));
+      var payload = {};
+      var payloadTwo = {};
+      var payloadThree = {};
+      var fd = new FormData();
+      var fdTwo = new FormData();
+      var fdThree = new FormData();
+      fd.append("image", this.state.imgOne);
+      fdTwo.append("image", this.state.imgTwo);
+      fdThree.append("image", this.state.imgThree);
+      const token = await DataAsync.getData(myLoginConstant.TOKEN); // get token for upload image
+      console.log(
+        "interceptor request begin in Data Async... >>>>>>>>>>>>>>>> = ",
+        token
+      );
+      console.log("interceptor request in redux: ", this.props.token);
+      if (StringUtil.isEmpty(token) && StringUtil.isEmpty(this.props.token)) {
+        // do nothing
+        // do
+      } else {
+        if (!StringUtil.isEmpty(token)) {
+          payload = {
+            data: fd,
+            token: token
+          };
+          payloadTwo = {
+            data: fdTwo,
+            token: token
+          };
+          payloadThree = {
+            data: fdThree,
+            token: token
+          };
+        } else {
+          payload = {
+            data: fd,
+            token: this.props.token
+          };
+          payloadTwo = {
+            data: fdTwo,
+            token: this.props.token
+          };
+          payloadThree = {
+            data: fdThree,
+            token: this.props.token
+          };
+        }
+      }
+      await api.uploadImage(payload, this.onHandleUploadImage.bind(this));
+      //await api.uploadImage(payloadTwo, this.onHandleUploadImage.bind(this));
+      //await api.uploadImage(payloadThree, this.onHandleUploadImage.bind(this));
+    }
+  }
+
+  onHandleUploadImage(isSuccess, response, error) {
+    const { goBack } = this.props.navigation;
+    if (isSuccess) {
+      console.log("response: ", response);
       Alert.alert(
         "Notification",
         "Pictures have been setup successfully. You can click your profile pictures to see them !",
+        [
+          {
+            text: "OK",
+            style: "cancel"
+          } // go back to sidebar
+        ],
+        { cancelable: false }
+      );
+    } else {
+      console.log("error: ", error);
+      Alert.alert(
+        "Notification",
+        "Error on uploading pictures. Sorry !",
         [
           {
             text: "OK",
@@ -152,17 +221,17 @@ class SetupPictures extends Component {
         if (index === 0) {
           this.setState({
             ...this.state,
-            imgOne: response.uri
+            imgOne: response
           });
         } else if (index === 1) {
           this.setState({
             ...this.state,
-            imgTwo: response.uri
+            imgTwo: response
           });
         } else {
           this.setState({
             ...this.state,
-            imgThree: response.uri
+            imgThree: response
           });
         }
       }
@@ -226,5 +295,6 @@ class SetupPictures extends Component {
 }
 
 export default connect(state => ({
-  image: state.UserInfoReducer.image
+  image: state.UserInfoReducer.image,
+  token: state.LoginReducer.token
 }))(SetupPictures);
