@@ -19,6 +19,7 @@ import {
 } from "react-native";
 import { connect } from "react-redux";
 import LoginAction from "../redux/actions/LoginAction";
+import UserInfoAction from '../redux/actions/UserInfoAction';
 import StateUtil from "../utils/StateUtil";
 import LoginStyle from "../assets/styles/LoginStyle";
 import images from "../assets/image_source/Images";
@@ -84,7 +85,7 @@ class Login extends Component {
     }
   }
 
-  onHandle(isSuccess, response, error) {
+  async onHandle(isSuccess, response, error) {
     const { dispatch } = this.props;
     if (isSuccess) {
       console.log("response: ", response);
@@ -103,6 +104,8 @@ class Login extends Component {
         };
         //dispatch(LoginAction.setId(response.data.user.id));
         dispatch(LoginAction.setUserInfo(payload));
+        console.log('BEFORE GETTING IMAGE !!!');
+        await api.getImage(response.data.user.id, this.onHandleGetImage.bind(this))
         if (this.state.isRemembered) {
           // if is remember is ticked
           console.log("REMBEMER IS TICKEDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
@@ -130,7 +133,6 @@ class Login extends Component {
           console.log("new token: ", token); // has to do this because the api needs bearer before the token
           dispatch(LoginAction.setToken(token));
         }
-        dispatch(LoginAction.isLoginSuccess(true)); // set to true to move to Home
       }
     } else {
       if (error.request.status === 422) {
@@ -150,6 +152,55 @@ class Login extends Component {
           { cancelable: false }
         );
       }
+    }
+  }
+
+  async onHandleGetImage(isSuccess, response, error) {
+    if (isSuccess) {
+      console.log('response handle get image: ', response);
+      if (response.data.length === 0) {
+        const image = [
+          {
+            uri: null
+          },
+          {
+            uri: null
+          },
+          {
+            uri: null
+          }
+        ];
+        await this.props.dispatch(UserInfoAction.updateImage(image));
+      } else {
+        const image = [
+          {
+            uri: response.data[0]
+          },
+          {
+            uri: response.data[1]
+          },
+          {
+            uri: response.data[2]
+          }
+        ];
+        await this.props.dispatch(UserInfoAction.updateImage(image));
+      }
+      this.props.dispatch(LoginAction.isLoginSuccess(true)); // set to true to move to Home
+    } else {
+      Alert.alert(
+        "Notification",
+        "There is something wrong getting the pictures, sorry !",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              console.log("OK pressed");
+            },
+            style: "cancel"
+          }
+        ],
+        { cancelable: false }
+      );
     }
   }
 

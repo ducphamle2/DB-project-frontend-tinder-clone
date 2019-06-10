@@ -1,49 +1,50 @@
 /* eslint-disable no-unused-vars */
-import React, { Component } from 'react';
-import { View, ScrollView, SafeAreaView } from 'react-native';
-import { DrawerActions, NavigationActions } from 'react-navigation';
-import { connect } from 'react-redux';
-import { Content, Container } from 'native-base';
-import images from '../assets/image_source/Images';
-import LoginAction from '../redux/actions/LoginAction';
-import stateUtil from '../utils/StateUtil';
-import BackGroundImage from '../assets/background/BackGroundImage';
-import StringUtil from '../utils/StringUtils';
-import ImageProfile from '../render_component/ImageProfile';
-import styles from '../assets/styles/sideBarStyle';
-import PopupLogout from '../render_component/PopupLogout';
-import IconSidebar from '../render_component/IconSideBar';
-import DataAsync from '../utils/DataAsync';
-import { myLoginConstant } from '../utils/Constants';
-import UserInfoAction from '../redux/actions/UserInfoAction'
+import React, { Component } from "react";
+import { View, ScrollView, SafeAreaView, Alert } from "react-native";
+import { DrawerActions, NavigationActions } from "react-navigation";
+import { connect } from "react-redux";
+import { Content, Container } from "native-base";
+import images from "../assets/image_source/Images";
+import LoginAction from "../redux/actions/LoginAction";
+import stateUtil from "../utils/StateUtil";
+import BackGroundImage from "../assets/background/BackGroundImage";
+import StringUtil from "../utils/StringUtils";
+import ImageProfile from "../render_component/ImageProfile";
+import styles from "../assets/styles/sideBarStyle";
+import PopupLogout from "../render_component/PopupLogout";
+import IconSidebar from "../render_component/IconSideBar";
+import DataAsync from "../utils/DataAsync";
+import { myLoginConstant } from "../utils/Constants";
+import UserInfoAction from "../redux/actions/UserInfoAction";
+import api from "../config/Api";
 
 class SideBar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isConfirm: false,
+      isConfirm: false
     }; //is used to check if the logout popup choice, if true then a popup will show up.
   }
 
   getProfile() {
     const { navigate } = this.props.navigation;
     const { email } = this.props;
-    navigate('Profile', this.props.navigation);
+    navigate("Profile", this.props.navigation);
   }
 
   getFeedback() {
     const { navigate } = this.props.navigation;
-    navigate('Feedback');
+    navigate("Feedback");
   }
 
   getSettings() {
     const { navigate } = this.props.navigation;
-    navigate('PasswordChanger');
+    navigate("PasswordChanger");
   }
 
   setupPictures() {
     const { navigate } = this.props.navigation;
-    navigate('SetupPictures');
+    navigate("SetupPictures");
   }
 
   /*
@@ -53,13 +54,13 @@ class SideBar extends Component {
   */
   logout() {
     const { email } = this.props;
-    console.log('email logout: ========', email);
+    console.log("email logout: ========", email);
     this.setState({ isConfirm: true });
   }
 
   handleConfirm() {
     const { dispatch } = this.props;
-    console.log('Confirm logout !!!!!!!!!!!!');
+    console.log("Confirm logout !!!!!!!!!!!!");
     DataAsync.removeData(myLoginConstant.REMEMBER_USERNAME);
     DataAsync.removeData(myLoginConstant.REMEMBER_EMAIL);
     DataAsync.removeData(myLoginConstant.REMEMBER_ACCOUNT);
@@ -69,16 +70,17 @@ class SideBar extends Component {
   }
 
   handleCancelConfirm() {
-    console.log('Cancel confirm');
+    console.log("Cancel confirm");
     this.setState({ isConfirm: false }); // change to false will close the popup
   }
 
   componentWillMount() {
+    const { id } = this.props;
     const payload = {
-      age: '',
-      gender: '',
-      phoneNumber: '',
-      city: '',
+      age: "",
+      gender: "",
+      phoneNumber: "",
+      city: ""
     };
     this.props.dispatch(UserInfoAction.updateUserInfo(payload));
   }
@@ -93,23 +95,20 @@ class SideBar extends Component {
           <BackGroundImage url={images.sidebarImage}>
             <View
               style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'flex-start'
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "flex-start"
               }}
             >
               <View />
               <View style={userInfoNav}>
                 {!StringUtil.isEmpty(email) ? (
                   <ImageProfile
-                    url={this.props.image[0]}
                     content={
-                      !StringUtil.isEmpty(username)
-                        ? username
-                        : 'Duc Pham'
+                      !StringUtil.isEmpty(username) ? username : "Duc Pham"
                     }
-
+                    navigation={this.props.navigation}
                   />
                 ) : null}
               </View>
@@ -118,9 +117,9 @@ class SideBar extends Component {
               isConfirm={isConfirm}
               confirm={this.handleConfirm.bind(this)}
               cancelConfirm={this.handleCancelConfirm.bind(this)}
-              message={'Are you sure you want to quit ?'}
-              nameBtnTop={'Sign out'}
-              nameBtnBot={'Cancel'}
+              message={"Are you sure you want to quit ?"}
+              nameBtnTop={"Sign out"}
+              nameBtnBot={"Cancel"}
             />
             <Container style={sbInfo}>
               <Content>
@@ -128,30 +127,30 @@ class SideBar extends Component {
                 <IconSidebar
                   source={images.userIcon}
                   onPress={this.getProfile.bind(this)}
-                  content={'User information'}
+                  content={"User information"}
                 />
                 {/* </TouchableOpacity> */}
                 {/* onPress={this.navigateToScreen('SetUp')}  */}
                 <IconSidebar
                   source={images.lock}
                   onPress={this.getSettings.bind(this)}
-                  content={'Change password'}
+                  content={"Change password"}
                 />
                 {/* onPress={this.navigateToScreen('HelpAndFeadBack')}  */}
                 <IconSidebar
                   source={images.helpIcon}
                   onPress={this.getFeedback.bind(this)}
-                  content={'Help & feedbacks'}
+                  content={"Help & feedbacks"}
                 />
                 <IconSidebar
                   source={images.camera}
                   onPress={this.setupPictures.bind(this)}
-                  content={'Setup pictures'}
+                  content={"Setup pictures"}
                 />
                 <IconSidebar
                   source={images.logoutIcon}
                   onPress={this.logout.bind(this)}
-                  content={'Sign out'}
+                  content={"Sign out"}
                 />
               </Content>
             </Container>
@@ -168,4 +167,5 @@ export default connect(state => ({
   email: state.LoginReducer.email,
   username: state.LoginReducer.username,
   image: state.UserInfoReducer.image,
+  id: state.LoginReducer.id
 }))(SideBar);

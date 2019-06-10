@@ -109,7 +109,7 @@ class Home extends Component {
       console.log("user password when remembering: ", password);
       const payload = { username, id, email, password };
       //dispatch(LoginAction.setId(userId)); // set id for Profile to use
-      dispatch(LoginAction.setUserInfo(payload));
+      await dispatch(LoginAction.setUserInfo(payload));
     } else {
       // do nothing because already have id in redux
     }

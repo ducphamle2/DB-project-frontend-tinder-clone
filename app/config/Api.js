@@ -12,7 +12,7 @@ const url = {
   GET_NOTIFICATION: "noti",
   MARK_READ: "noti/seen",
   MATCH: "user/matched",
-  UPLOAD_IMAGE: "image/",
+  UPLOAD_IMAGE: "image",
   GET_IMAGE: "image/"
 };
 
@@ -214,17 +214,16 @@ function getMatched(callback) {
 function uploadImage(payload, callback) {
   console.log("payload data: ", payload.data);
   console.log("payload token: ", payload.token);
-  fetch("https://db-project-backend.herokuapp.com/api/image/", {
+  axios({
     method: "POST",
+    url: url.UPLOAD_IMAGE,
     //headers: {
     //  Authorization: payload.token
     //},
-    body: payload.data
+    data: payload.data
   })
     .then(response => {
-      response.json().then(data => {
-        console.log("response json: ", data);
-      });
+      callback(true, response, null);
     })
     .catch(error => {
       callback(false, null, error);

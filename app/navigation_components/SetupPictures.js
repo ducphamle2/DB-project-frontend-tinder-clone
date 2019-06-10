@@ -70,24 +70,72 @@ class SetupPictures extends Component {
     this.handleSecondPicture = this.handleSecondPicture.bind(this);
     this.handleThirdPicture = this.handleThirdPicture.bind(this);
     this.state = {
-      imgOne: this.props.image[0],
-      imgTwo: this.props.image[1],
-      imgThree: this.props.image[2]
+      imgOne: "",
+      imgTwo: "",
+      imgThree: "",
+      token: ""
     };
+  }
+
+  async componentWillMount() {
+    const temp = [null, null, null];
+    console.log("props image: ", this.props.image);
+    if (this.props.image.length === 0) {
+      console.log("image props length is ZERO");
+    } else {
+      for (let i = 0; i < this.props.image.length; i++) {
+        if (!StringUtil.isEmpty(this.props.image[i].uri)) {
+          temp[this.props.image[i].uri.order] = this.props.image[i];
+        }
+      }
+    }
+    this.setState({
+      imgOne: temp[0],
+      imgTwo: temp[1],
+      imgThree: temp[2]
+    });
+
+    const token = await DataAsync.getData(myLoginConstant.TOKEN); // get token for upload image
+    console.log("token in Data Async... >>>>>>>>>>>>>>>> = ", token);
+    console.log("token in redux: ", this.props.token);
+    if (StringUtil.isEmpty(token) && StringUtil.isEmpty(this.props.token)) {
+      // do nothing
+      // do
+    } else {
+      if (!StringUtil.isEmpty(token)) {
+        this.setState({ token: token });
+      } else {
+        this.setState({ token: this.props.token });
+      }
+    }
   }
 
   async handleApply() {
     const { dispatch } = this.props;
     const { imgOne, imgTwo, imgThree } = this.state;
-    // if they have not chosen anything => alert wrong
-    if (
-      StringUtil.isEmpty(imgOne) &&
-      StringUtil.isEmpty(imgTwo) &&
+    if (this.countDifference === 0) {
+      Alert.alert(
+        "Notification",
+        "The pictures are the same !!",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              console.log("OK pressed");
+            },
+            style: "cancel"
+          }
+        ],
+        { cancelable: false }
+      );
+    } else if (
+      StringUtil.isEmpty(imgOne) ||
+      StringUtil.isEmpty(imgTwo) ||
       StringUtil.isEmpty(imgThree)
     ) {
       Alert.alert(
         "Notification",
-        "No pictures have been set yet !!!!",
+        "All three pictures must be set !!",
         [
           {
             text: "OK",
@@ -100,64 +148,86 @@ class SetupPictures extends Component {
         { cancelable: false }
       );
     } else {
-      // if they have then we set the state into our reducer so we can use in other components
-      const images = [
-        this.state.imgOne,
-        this.state.imgTwo,
-        this.state.imgThree
-      ];
-      console.log("payload before dispatch: ", images);
-      dispatch(UserInfoAction.updateImage(images));
-      var payload = {};
-      var payloadTwo = {};
-      var payloadThree = {};
-      var fd = new FormData();
-      var fdTwo = new FormData();
-      var fdThree = new FormData();
-      fd.append("image", this.state.imgOne);
-      fdTwo.append("image", this.state.imgTwo);
-      fdThree.append("image", this.state.imgThree);
-      const token = await DataAsync.getData(myLoginConstant.TOKEN); // get token for upload image
-      console.log(
-        "interceptor request begin in Data Async... >>>>>>>>>>>>>>>> = ",
-        token
-      );
-      console.log("interceptor request in redux: ", this.props.token);
-      if (StringUtil.isEmpty(token) && StringUtil.isEmpty(this.props.token)) {
-        // do nothing
-        // do
+      // if they have not chosen anything => alert wrong
+      if (
+        StringUtil.isEmpty(imgOne) &&
+        StringUtil.isEmpty(imgTwo) &&
+        StringUtil.isEmpty(imgThree)
+      ) {
+        Alert.alert(
+          "Notification",
+          "No pictures have been set yet !!!!",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
       } else {
-        if (!StringUtil.isEmpty(token)) {
+        // if they have then we set the state into our reducer so we can use in other components
+        var payload = {};
+        var payloadTwo = {};
+        var payloadThree = {};
+
+        if (!StringUtil.isEmpty(this.state.imgOne.type)) {
+          console.log('img one not empty')
+          const data = {
+            image:
+              "data:" +
+              this.state.imgOne.type +
+              ";" +
+              "base64," +
+              this.state.imgOne.data,
+            imgOrder: 0
+          };
           payload = {
-            data: fd,
-            token: token
+            data: data,
+            token: this.state.token
+          };
+          await api.uploadImage(payload, this.onHandleUploadImage.bind(this));
+        }
+
+        if (!StringUtil.isEmpty(this.state.imgTwo.type)) {
+          console.log('img two not empty')
+          const data = {
+            image:
+              "data:" +
+              this.state.imgTwo.type +
+              ";" +
+              "base64," +
+              this.state.imgTwo.data,
+            imgOrder: 1
           };
           payloadTwo = {
-            data: fdTwo,
-            token: token
+            data: data,
+            token: this.state.token
+          };
+          await api.uploadImage(payloadTwo, this.onHandleUploadImage.bind(this));
+        }
+
+        if (!StringUtil.isEmpty(this.state.imgThree.type)) {
+          console.log('img three not empty')
+          const data = {
+            image:
+              "data:" +
+              this.state.imgThree.type +
+              ";" +
+              "base64," +
+              this.state.imgThree.data,
+            imgOrder: 2
           };
           payloadThree = {
-            data: fdThree,
-            token: token
+            data: data,
+            token: this.state.token
           };
-        } else {
-          payload = {
-            data: fd,
-            token: this.props.token
-          };
-          payloadTwo = {
-            data: fdTwo,
-            token: this.props.token
-          };
-          payloadThree = {
-            data: fdThree,
-            token: this.props.token
-          };
+          await api.uploadImage(payloadThree, this.onHandleUploadImage.bind(this));
         }
       }
-      await api.uploadImage(payload, this.onHandleUploadImage.bind(this));
-      //await api.uploadImage(payloadTwo, this.onHandleUploadImage.bind(this));
-      //await api.uploadImage(payloadThree, this.onHandleUploadImage.bind(this));
     }
   }
 
@@ -171,7 +241,10 @@ class SetupPictures extends Component {
         [
           {
             text: "OK",
-            style: "cancel"
+            style: "cancel",
+            onPress: async () => {
+              await api.getImage(this.props.id, this.onHandleGetImage.bind(this))
+            }
           } // go back to sidebar
         ],
         { cancelable: false }
@@ -189,6 +262,54 @@ class SetupPictures extends Component {
             },
             style: "cancel"
           } // go back to sidebar
+        ],
+        { cancelable: false }
+      );
+    }
+  }
+
+  async onHandleGetImage(isSuccess, response, error) {
+    if (isSuccess) {
+      console.log('response handle get image: ', response);
+      if (response.data.length === 0) {
+        const image = [
+          {
+            uri: null
+          },
+          {
+            uri: null
+          },
+          {
+            uri: null
+          }
+        ];
+        await this.props.dispatch(UserInfoAction.updateImage(image));
+      } else {
+        const image = [
+          {
+            uri: response.data[0]
+          },
+          {
+            uri: response.data[1]
+          },
+          {
+            uri: response.data[2]
+          }
+        ];
+        await this.props.dispatch(UserInfoAction.updateImage(image));
+      }
+    } else {
+      Alert.alert(
+        "Notification",
+        "There is something wrong getting the pictures, sorry !",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              console.log("OK pressed");
+            },
+            style: "cancel"
+          }
         ],
         { cancelable: false }
       );
@@ -253,25 +374,42 @@ class SetupPictures extends Component {
 
   render() {
     console.log("props image: ", this.props);
+    const { imgStyle } = style;
     return (
       <View style={styles.container}>
-        <View style={{ flex: 1, flexDirection: "row", marginTop: 30 }}>
+        <View style={{ flex: 1, flexDirection: "row", marginTop: height / 30 }}>
           <TouchableOpacity
             style={{ marginRight: 10 }}
             onPress={this.handleFirstPicture.bind(this)}
           >
             <Image source={images.camera} />
           </TouchableOpacity>
-          <Text>first pic</Text>
+          <Text>1st pic</Text>
+          <Image
+            style={imgStyle}
+            source={
+              StringUtil.isEmpty(this.state.imgOne)
+                ? images.user
+                : { uri: StringUtil.isEmpty(this.state.imgOne.uri.url) ? this.state.imgOne.uri : this.state.imgOne.uri.url}
+            }
+          />
         </View>
         <View style={{ flex: 1, flexDirection: "row", marginTop: 10 }}>
           <TouchableOpacity
-            style={{ marginLeft: 20 }}
+            style={{ marginRight: 10 }}
             onPress={this.handleSecondPicture.bind(this)}
           >
             <Image source={images.camera} />
           </TouchableOpacity>
-          <Text style={{ marginLeft: 10 }}>second pic</Text>
+          <Text>2nd pic</Text>
+          <Image
+            style={imgStyle}
+            source={
+              StringUtil.isEmpty(this.state.imgTwo)
+                ? images.user
+                : { uri: StringUtil.isEmpty(this.state.imgTwo.uri.url) ? this.state.imgTwo.uri : this.state.imgTwo.uri.url }
+            }
+          />
         </View>
         <View style={{ flex: 1, flexDirection: "row", marginTop: 20 }}>
           <TouchableOpacity
@@ -280,7 +418,15 @@ class SetupPictures extends Component {
           >
             <Image source={images.camera} />
           </TouchableOpacity>
-          <Text>third pic</Text>
+          <Text>3rd pic</Text>
+          <Image
+            style={imgStyle}
+            source={
+              StringUtil.isEmpty(this.state.imgThree)
+                ? images.user
+                : { uri: StringUtil.isEmpty(this.state.imgThree.uri.url) ? this.state.imgThree.uri : this.state.imgThree.uri.url }
+            }
+          />
         </View>
         <TouchableHighlight
           disabled={false}
@@ -296,5 +442,17 @@ class SetupPictures extends Component {
 
 export default connect(state => ({
   image: state.UserInfoReducer.image,
-  token: state.LoginReducer.token
+  token: state.LoginReducer.token,
+  id: state.LoginReducer.id,
 }))(SetupPictures);
+
+const style = StyleSheet.create({
+  imgStyle: {
+    width: width / 5,
+    height: width / 5,
+    marginLeft: width / 5,
+    marginTop: width / 200,
+    marginBottom: width / 10,
+    borderRadius: width / 10
+  }
+});

@@ -86,6 +86,7 @@ class FlatListItem extends React.Component {
     //this.handleOnOpen = this.handleOnOpen.bind(this);
     this.handleParentComponent = this.handleParentComponent.bind(this);
     this.swipeContact = this.swipeContact.bind(this);
+    this.getAvatar = this.getAvatar.bind(this);
   }
 
   componentWillMount() {}
@@ -108,9 +109,9 @@ class FlatListItem extends React.Component {
 
   handlePicturePressed() {
     const { navigate } = this.props.navigation;
-    const { data, trueIndex } = this.props;
-    console.log("before navigatin to Render Pictures: ", data[trueIndex].uri);
-    navigate("RenderPictures", data[trueIndex].uri); // should pass an array of images
+    const { trueData, trueIndex } = this.props;
+    console.log("before navigatin to Render Pictures: ", trueData[trueIndex]);
+    navigate("RenderPictures", trueData[trueIndex].images); // should pass an array of images
   }
 
   async swipeContact() {
@@ -153,6 +154,19 @@ class FlatListItem extends React.Component {
     console.log("before ending refresh");
     refresh.refreshFlatList();
     this.setState({ refreshing: false }); // after refreshing we need to set it back to false to close
+  }
+
+  // get the first picture of users
+  getAvatar() {
+    const {trueData, trueIndex} = this.props;
+    if (trueData[trueIndex].images.length === 0) {
+      return null;
+    }
+    for (let i = 0; i < trueData[trueIndex].images.length; i++) {
+      if (trueData[trueIndex].images[i].order === 0) {
+        return trueData[trueIndex].images[i].url;
+      }
+    }
   }
 
   render() {
@@ -244,7 +258,7 @@ class FlatListItem extends React.Component {
     console.log("before rendering flatlist");
     // const { newData } = this.props;
     let image = {
-      uri: ""
+      uri: this.getAvatar()
     };
     return (
       <Swipeout {...swipeSettings}>

@@ -28,21 +28,57 @@ class RenderPictures extends React.Component {
     this.state = {
       messages: [],
       redux: false,
+      images: [],
+      firstImg: "",
+      secImg: "",
+      thirdImg: ""
     };
+    this.getCorrectUserOrder = this.getCorrectUserOrder.bind(this);
   }
 
   componentWillMount() {
-    api.getImage(this.props.id, this.onHandleGetImage.bind(this));
+    const temp = [null, null, null];
+    console.log("props image: ", this.props.image);
+    if (this.props.image.length === 0) {
+      console.log("image props length is ZERO");
+    } else {
+      for (let i = 0; i < this.props.image.length; i++) {
+        if (!StringUtil.isEmpty(this.props.image[i].uri)) {
+          temp[this.props.image[i].uri.order] = this.props.image[i].uri.url;
+        }
+      }
+    }
+    this.setState({
+      firstImg: temp[0],
+      secImg: temp[1],
+      thirdImg: temp[2]
+    });
   }
 
-  onHandleGetImage(isSuccess, response, error) {
-    if (isSuccess) {
-      console.log('response: ', response);
+  getCorrectUserOrder(params) {
+    const temp = [
+      {
+        uri: ""
+      },
+      {
+        uri: ""
+      },
+      {
+        uri: ""
+      }
+    ];
+    if (params.length === 0) {
+      return temp;
+    } else {
+      for (let i = 0; i < params.length; i++) {
+        temp[params[i].order].uri = params[i].url;
+      }
+      return temp;
     }
   }
 
   render() {
-    console.log("state of navigation: ", this.props.navigation.state);
+    console.log("params navigation: ", this.props.navigation.state.params);
     if (StringUtil.isEmpty(this.props.navigation.state.params)) {
       // if user clicks profile pic
       console.log("navigate from Image Profile");
@@ -53,13 +89,13 @@ class RenderPictures extends React.Component {
       );
       const source = [
         {
-          uri: this.props.image[0]
+          uri: this.state.firstImg
         },
         {
-          uri: this.props.image[1]
+          uri: this.state.secImg
         },
         {
-          uri: this.props.image[2]
+          uri: this.state.thirdImg
         }
       ];
       console.log("source: ", source);
@@ -97,14 +133,16 @@ class RenderPictures extends React.Component {
       // if user click other users' profile pics
       console.log("navigate from FlatListItem");
       const { params } = this.props.navigation.state;
-      console.log("params: ", params[0].uri);
+      console.log("params: ", params);
+      const image = this.getCorrectUserOrder(params);
+      console.log("images: ", images);
       return (
         <View style={styles.container}>
           <Swiper>
             <View style={styles.slideContainer}>
               <Image
                 source={
-                  StringUtil.isEmpty(params[0].uri) ? images.user : params[0]
+                  StringUtil.isEmpty(image[0].uri) ? images.user : images[0]
                 }
                 style={styles.imgStyle}
               />
@@ -112,7 +150,7 @@ class RenderPictures extends React.Component {
             <View style={styles.slideContainer}>
               <Image
                 source={
-                  StringUtil.isEmpty(params[1].uri) ? images.user : params[1]
+                  StringUtil.isEmpty(image[1].uri) ? images.user : images[1]
                 }
                 style={styles.imgStyle}
               />
@@ -120,7 +158,7 @@ class RenderPictures extends React.Component {
             <View style={styles.slideContainer}>
               <Image
                 source={
-                  StringUtil.isEmpty(params[2].uri) ? images.user : params[2]
+                  StringUtil.isEmpty(image[2].uri) ? images.user : images[2]
                 }
                 style={styles.imgStyle}
               />
@@ -134,5 +172,5 @@ class RenderPictures extends React.Component {
 
 export default connect(state => ({
   image: state.UserInfoReducer.image,
-  id: state.LoginReducer.id,
+  id: state.LoginReducer.id
 }))(RenderPictures);

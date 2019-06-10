@@ -214,7 +214,7 @@ class Profile extends Component {
                 //lineHeight={10}
                 returnKeyType="next"
                 onChangeText={txt => this.setState({ age: txt })}
-                value={age.toString()}
+                value={StringUtil.isEmpty(age) ? "" : age.toString()}
                 maxLength={5}
               />
             </Item>

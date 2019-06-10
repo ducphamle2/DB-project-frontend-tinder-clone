@@ -1,7 +1,5 @@
 import React from 'react';
 import { Text, Image, View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import ImagePicker from 'react-native-image-picker';
-import { withNavigation } from 'react-navigation';
 import { connect } from 'react-redux';
 import RenderPictures from './RenderPictures'
 import Example from '../navigation_components/Example';
@@ -40,48 +38,13 @@ class ImageProfile extends React.Component {
     constructor(props) {
         super(props);
         let source = {
-            uri: this.props.url
+            uri: StringUtil.isEmpty(this.props.image[0].uri) ? null : this.props.image[0].uri.url
         }
         this.state = {
             avatarSource: source,
             isClicked: false,
             isNull: false
         }
-        this.selectPhotoTapped = this.selectPhotoTapped.bind(this);
-    }
-
-    selectPhotoTapped() {
-        const options = {
-            quality: 1.0,
-            maxWidth: 500,
-            maxHeight: 500,
-            storageOptions: {
-                skipBackup: true,
-            },
-        };
-
-        ImagePicker.showImagePicker(options, (response) => {
-            console.log('Response = ', response);
-
-            if (response.didCancel) {
-                console.log('User cancelled photo picker');
-            } else if (response.error) {
-                console.log('ImagePicker Error: ', response.error);
-            } else if (response.customButton) {
-                console.log('User tapped custom button: ', response.customButton);
-            } else {
-                let source = {
-                    uri: response.uri
-                };
-
-                // You can also display the image using data:
-                // let source = { uri: 'data:image/jpeg;base64,' + response.data };
-                console.log('source here: ', source)
-                this.setState({
-                    avatarSource: source,
-                });
-            }
-        });
     }
 
     // when clicking the image it will direct user to many pics
@@ -106,7 +69,7 @@ class ImageProfile extends React.Component {
                 <TouchableOpacity
                     onPress={this.handleImageClicked.bind(this)}
                 >
-                    <Image source={this.state.isNull ? images.user : this.state.avatarSource} style={imgStyle} />
+                    <Image source={StringUtil.isEmpty(this.state.avatarSource.uri) ? images.user : this.state.avatarSource} style={imgStyle} />
                 </TouchableOpacity>
                 <View
                     style={{
@@ -129,4 +92,10 @@ class ImageProfile extends React.Component {
     }
 }
 
-export default withNavigation(ImageProfile);
+export default connect(state => ({
+    isLoginSuccess: state.LoginReducer.isLoginSuccess,
+    email: state.LoginReducer.email,
+    username: state.LoginReducer.username,
+    image: state.UserInfoReducer.image,
+    id: state.LoginReducer.id
+  }))(ImageProfile);
