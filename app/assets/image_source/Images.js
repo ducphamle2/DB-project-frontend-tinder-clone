@@ -13,6 +13,7 @@ import camera from '../images/camera.png'
 import alarm from '../images/alarm.png'
 import lock from '../images/lock.png'
 import list from '../images/list.png'
+import feedback from '../images/feedback.png'
 
 const images = {
     loginBackGround,
@@ -30,6 +31,7 @@ const images = {
     alarm,
     lock,
     list,
+    feedback,
 }
 
 export default images;

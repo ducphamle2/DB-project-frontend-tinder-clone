@@ -55,6 +55,9 @@ const flatStyles = StyleSheet.create({
     margin: width / 40,
     borderRadius: width / 10
   },
+  feedbackStyle: {
+    margin: width / 30,
+  },
   buttonStyle: {
     position: "absolute",
     bottom: 0,
@@ -117,6 +120,7 @@ class FlatListItem extends React.Component {
   async swipeContact() {
     const { trueData, trueIndex } = this.props;
     console.log("true data in swipe contact: ", trueData); // check the correct data in our array
+    // check status to send to backend, can only be liked or unliked an user
     if (this.state.status === "liked") {
       console.log("liked");
       const payload = {
@@ -159,7 +163,8 @@ class FlatListItem extends React.Component {
   // get the first picture of users
   getAvatar() {
     const {trueData, trueIndex} = this.props;
-    if (trueData[trueIndex].images.length === 0) {
+    console.log('true data: ', trueData[trueIndex].images)
+    if (StringUtil.isEmpty(trueData[trueIndex].images.length)) {
       return null;
     }
     for (let i = 0; i < trueData[trueIndex].images.length; i++) {
@@ -258,8 +263,14 @@ class FlatListItem extends React.Component {
     console.log("before rendering flatlist");
     // const { newData } = this.props;
     let image = {
-      uri: this.getAvatar()
+      uri: images.feedback
     };
+    console.log('title currently: ', title);
+    if (title === TitleName.firstTitle || title === TitleName.secondTitle || title === TitleName.thirdTitle) { //distinguish from home and other lists
+      image = {
+        uri: this.getAvatar()
+      };
+    }
     return (
       <Swipeout {...swipeSettings}>
         <ScrollView>
@@ -268,8 +279,8 @@ class FlatListItem extends React.Component {
           >
             <TouchableOpacity onPress={this.handlePicturePressed.bind(this)}>
               <Image
-                source={StringUtil.isEmpty(image.uri) ? images.user : image}
-                style={flatStyles.imgStyle}
+                source={StringUtil.isEmpty(image.uri) ? images.user : image.uri === images.feedback ? images.feedback : image}
+                style={image.uri === images.feedback ? flatStyles.feedbackStyle : flatStyles.imgStyle}
               />
             </TouchableOpacity>
             <View style={{ flex: 1, flexDirection: "column", height: 60 }}>

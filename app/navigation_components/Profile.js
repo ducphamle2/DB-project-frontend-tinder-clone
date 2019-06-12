@@ -178,7 +178,7 @@ class Profile extends Component {
     } = LoginStyle;
     return (
       <ScrollView keyboardShouldPersistTaps="always">
-        <View style={{ flex: 1, marginTop: 20 }}>
+        <View style={{ flex: 1 }}>
           <View
             style={{
               flex: 1,

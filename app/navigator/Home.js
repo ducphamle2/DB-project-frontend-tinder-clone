@@ -213,6 +213,7 @@ class Home extends Component {
   }
 
   onHandleMatched(isSuccess, response, error) {
+    console.log('die in here')
     if (isSuccess) {
       console.log("response LIKED USERRRRRRRRRRRRRRRR: ", response);
       this.setState({

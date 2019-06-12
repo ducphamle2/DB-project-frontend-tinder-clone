@@ -394,7 +394,7 @@ class Login extends Component {
                   style={[
                     loginText,
                     {
-                      marginLeft: 150,
+                      marginLeft: 140,
                       marginTop: -5
                     }
                   ]}
@@ -419,7 +419,7 @@ class Login extends Component {
                   style={[
                     loginText,
                     {
-                      marginLeft: 130
+                      marginLeft: 120
                     }
                   ]}
                 >
