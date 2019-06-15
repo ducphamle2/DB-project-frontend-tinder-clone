@@ -18,7 +18,7 @@ Còn không thì đọc bên dưới:
   npm install -g react-native-cli
   
 **3. Cài Android Studio (bước mệt mỏi nhất =))):**
-  a) Cho Linux: 
+>  a) Cho Linux: 
     Tải package xong unzip ra, vào folder bin bên trong rồi mở terminal trong đó lên, chạy ./studio.sh để install. 
     Có mấy cái qtrong như Android SDK, Android SDK platform. còn Android Virtual Device thì chắc không cần nhưng cứ cài cho chắc.
     Cài xong sẽ ra 1 cái bảng trong đấy có phần 'Start a new Android Studio project' các thứ. Thì ấn vào configure vào SDK manager
