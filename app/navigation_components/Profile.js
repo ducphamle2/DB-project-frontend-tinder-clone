@@ -22,6 +22,7 @@ import validation from "../utils/validations/Validation";
 import DataAsync from "../utils/DataAsync";
 import { myLoginConstant } from "../utils/Constants";
 import LoginAction from "../redux/actions/LoginAction";
+import socketUtil from "../startSocketIO";
 
 class Profile extends Component {
   constructor(props) {
@@ -34,8 +35,6 @@ class Profile extends Component {
       facebookLink: "",
       profileErrorMessage: ""
     };
-
-    this.onHandleSetInfo = this.onHandleSetInfo.bind(this);
   }
 
   // this will be used to check state values before rendering.
@@ -60,7 +59,37 @@ class Profile extends Component {
       });
       console.log("state: ", this.state.age);
     } else {
-      console.log("error: ", error);
+      if (error.request.status === 500) {
+        Alert.alert(
+          "Notification",
+          "There is something wrong with our server. Sorry !",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      } else {
+        Alert.alert(
+          "Notification",
+          "Error: User not found",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      }
     }
   }
 
@@ -104,7 +133,7 @@ class Profile extends Component {
         data: { age, phoneNumber, gender, city, facebookLink }
       };
       console.log("Before calling api");
-      api.setInfo(payload, this.onHandleSetInfo.bind());
+      api.setInfo(payload, this.onHandleSetInfo.bind(this));
     } else {
       if (!validation.isNumber(age) || !validation.isNumber(phoneNumber)) {
         this.setState({
@@ -128,6 +157,7 @@ class Profile extends Component {
   }
 
   async onHandleSetInfo(isSuccess, response, error) {
+    const { navigate } = this.props.navigation.state.params;
     if (isSuccess) {
       console.log("success: ", response);
       const remember = await DataAsync.getData(
@@ -142,12 +172,6 @@ class Profile extends Component {
             text: "OK",
             onPress: () => {
               console.log("OK pressed");
-
-              console.log(
-                "this props param navigation: ",
-                this.props.navigation.state.params
-              );
-              const { navigate } = this.props.navigation.state.params;
               navigate("Drawer");
             },
             style: "cancel"
@@ -156,7 +180,37 @@ class Profile extends Component {
         { cancelable: false }
       );
     } else {
-      console.log("error: ", error);
+      if (error.request.status === 500) {
+        Alert.alert(
+          "Notification",
+          "There is something wrong with our server. Sorry !",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      } else {
+        Alert.alert(
+          "Notification",
+          "Update failed for some reasons",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      }
     }
   }
 
@@ -385,5 +439,6 @@ export default connect(state => ({
   gender: state.UserInfoReducer.gender,
   phoneNumber: state.UserInfoReducer.phoneNumber,
   city: state.UserInfoReducer.city,
-  id: state.LoginReducer.id
+  id: state.LoginReducer.id,
+  socket: state.LoginReducer.socket
 }))(Profile);

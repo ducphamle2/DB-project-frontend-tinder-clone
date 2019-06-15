@@ -16,7 +16,7 @@ import IconSidebar from "../render_component/IconSideBar";
 import DataAsync from "../utils/DataAsync";
 import { myLoginConstant } from "../utils/Constants";
 import UserInfoAction from "../redux/actions/UserInfoAction";
-import api from "../config/Api";
+import socketUtil from '../startSocketIO';
 
 class SideBar extends Component {
   constructor(props) {
@@ -24,6 +24,18 @@ class SideBar extends Component {
     this.state = {
       isConfirm: false
     }; //is used to check if the logout popup choice, if true then a popup will show up.
+
+    this.reRenderSomething = this.props.navigation.addListener('willFocus', () => {
+      //Put your code here you want to rerender, in my case i want to rerender the data 
+      //im fetching from firebase and display the changes
+      // solution from: https://github.com/react-navigation/react-navigation/issues/922
+
+      this.forceUpdate();
+    });
+  }
+
+  componentWillUnmount() {
+    this.reRenderSomething;
   }
 
   getProfile() {
@@ -86,6 +98,7 @@ class SideBar extends Component {
   }
 
   render() {
+    console.log('render in sidebar')
     const { email, username } = this.props;
     const { container, sbInfo, userInfoNav } = styles;
     const { isConfirm } = this.state;
@@ -105,6 +118,7 @@ class SideBar extends Component {
               <View style={userInfoNav}>
                 {!StringUtil.isEmpty(email) ? (
                   <ImageProfile
+                  url={StringUtil.isEmpty(this.props.image[0].uri) ? null : this.props.image[0].uri.url}
                     content={
                       !StringUtil.isEmpty(username) ? username : "Duc Pham"
                     }
@@ -167,5 +181,6 @@ export default connect(state => ({
   email: state.LoginReducer.email,
   username: state.LoginReducer.username,
   image: state.UserInfoReducer.image,
-  id: state.LoginReducer.id
+  id: state.LoginReducer.id,
+  socket: state.LoginReducer.socket
 }))(SideBar);

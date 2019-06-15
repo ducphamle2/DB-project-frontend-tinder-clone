@@ -22,6 +22,8 @@ import StringUtil from "../utils/StringUtils";
 import { Content, Container } from "native-base";
 import IconNotification from "../render_component/IconNotification";
 import styles from "../assets/styles/sideBarStyle";
+import { connect } from "react-redux";
+import socketUtil from "../startSocketIO";
 
 const { width } = Dimensions.get("window");
 
@@ -49,7 +51,7 @@ const flatStyles = StyleSheet.create({
   }
 });
 
-export default class NotificationFeed extends Component {
+class NotificationFeed extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -76,29 +78,47 @@ export default class NotificationFeed extends Component {
   onHandleMarkAsRead(isSuccess, response, error) {
     if (isSuccess) {
       this.props.refresh._onRefresh();
+    } else {
+      Alert.alert(
+        "Notification",
+        "Sorry, there is something wrong with our server, your feedback cannot be sent !",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              console.log("OK pressed");
+            },
+            style: "cancel"
+          }
+        ],
+        { cancelable: false }
+      );
     }
   }
 
   render() {
     const { container, sbInfo } = styles;
     return (
-      <SafeAreaView style={container}>
-        <ScrollView>
-          {/* <TouchableOpacity onPress={this.getProfile.bind(this)}> */}
-          <View style={{ flex: 1, flexDirection: "column", height: 60 }}>
-            <IconNotification
-              source={images.alarm}
-              onPress={this.getNotificationDetails.bind(this)}
-              content={
-                this.props.item.item +
-                " at " +
-                this.props.data[this.props.item.index].createdAt
-              }
-              status={this.props.data[this.props.item.index].status}
-            />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+      <ScrollView>
+        {/* <TouchableOpacity onPress={this.getProfile.bind(this)}> */}
+        <View style={{ flex: 1, flexDirection: "column" }}>
+          <IconNotification
+            source={images.alarm}
+            onPress={this.getNotificationDetails.bind(this)}
+            content={
+              this.props.item.item +
+              " at " +
+              this.props.data[this.props.item.index].createdAt
+            }
+            status={this.props.data[this.props.item.index].status}
+          />
+        </View>
+      </ScrollView>
     );
   }
 }
+
+export default connect(state => ({
+  id: state.LoginReducer.id,
+  socket: state.LoginReducer.socket
+}))(NotificationFeed);

@@ -12,7 +12,8 @@ const LoginReducer = (
     username: "",
     password: "",
     token: "",
-    id: ""
+    id: "",
+    socket: "",
   },
   action
 ) => {
@@ -67,6 +68,11 @@ const LoginReducer = (
         ...state,
         id: payload
       };
+      case ActionType.SET_SOCKET:
+        return {
+          ...state,
+          socket: payload,
+        }
     default:
       return state;
   }

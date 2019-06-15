@@ -15,6 +15,8 @@ const ActionTypes = {
     UPDATE_INFO: 'UPDATE_INFO',
     UPDATE_IMAGE: 'UPDATE_IMAGE',
     UPDATE_TITLE: 'UPDATE_TITLE',
+    SET_SOCKET: 'SET_SOCKET',
+    SET_NOTIFICATION: 'SET_NOTIFICATION',
 }
 
 export default ActionTypes;

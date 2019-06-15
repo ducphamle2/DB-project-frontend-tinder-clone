@@ -16,6 +16,8 @@ import ModalFeedback from "../render_component/ModalFeedback";
 import FlatListItem from "../navigation_components/FlatListItem";
 import FakeData from "../config/FakeData";
 import api from "../config/Api";
+import socketUtil from "../startSocketIO";
+import { connect } from "react-redux";
 
 const { width } = Dimensions.get("window");
 
@@ -54,7 +56,7 @@ const data = [
 	 It has two main props: data and renderItem.
 	 For renderItem it needs to receive an arrow function with two params: item & index of the item
 */
-export default class Feedback extends Component {
+class Feedback extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -92,10 +94,45 @@ export default class Feedback extends Component {
         for (let i = 0; i < response.data.length; i++) {
           temp[i] = response.data[i].header; //get the content of data
         }
-        this.setState({ data: temp, loading: false, refreshing: false, trueData: response.data });
+        this.setState({
+          data: temp,
+          loading: false,
+          refreshing: false,
+          trueData: response.data
+        });
       }
     } else {
-      console.log("error: ", error);
+      if (error.request.status === 500) {
+        Alert.alert(
+          "Notification",
+          "There is something wrong with our server. Sorry !",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      } else {
+        Alert.alert(
+          "Notification",
+          "Unknown errors detected",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      }
     }
   }
 
@@ -178,8 +215,17 @@ export default class Feedback extends Component {
           onPress={this.handleAddButton.bind()}
         />
 
-        <ModalFeedback ref={"addModal"} parentFlatList={this} navigation={this.props.navigation} />
+        <ModalFeedback
+          ref={"addModal"}
+          parentFlatList={this}
+          navigation={this.props.navigation}
+        />
       </View>
     );
   }
 }
+
+export default connect(state => ({
+  id: state.LoginReducer.id,
+  socket: state.LoginReducer.socket
+}))(Feedback);

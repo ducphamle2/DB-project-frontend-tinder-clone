@@ -66,6 +66,15 @@ class Login extends Component {
       const payload = { email, password };
       console.log("payload in handle login: ", payload);
       setTimeout(async () => {
+        Alert.alert(
+          "Notification",
+          "The app is now logging in, please wait ...",
+          [
+            {
+              text: "OK",
+            }
+          ]
+        );
         await api.login(payload, this.onHandle.bind(this));
       }, 200);
     } else {
@@ -91,6 +100,15 @@ class Login extends Component {
       console.log("response: ", response);
       // if successfully login
       if (response.request.status === 200) {
+        Alert.alert(
+          "Notification",
+          "Successfully login !!",
+          [
+            {
+              text: "OK",
+            }
+          ]
+        );
         console.log("SUCESSFULLYYYYYYY");
         setTimeout(() => {
           dispatch(LoginAction.setUsername(this.state.email)); // set username state to current username for later use
@@ -140,6 +158,38 @@ class Login extends Component {
         Alert.alert(
           "Notification",
           "User does not exist or wrong pass",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      }
+      else if (error.request.status === 500) {
+        Alert.alert(
+          "Notification",
+          "There is something wrong with our server. Sorry !",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      }
+      else {
+        Alert.alert(
+          "Notification",
+          "Unknown errors detected",
           [
             {
               text: "OK",
@@ -378,7 +428,7 @@ class Login extends Component {
                   height: 10,
                   alignItems: "center",
                   justifyContent: "center",
-                  marginLeft: screen.width - 290
+                  marginLeft: screen.width / 3.5
                 }}
               />
               <TouchableHighlight
@@ -394,7 +444,7 @@ class Login extends Component {
                   style={[
                     loginText,
                     {
-                      marginLeft: 140,
+                      marginLeft: screen.width / 3,
                       marginTop: -5
                     }
                   ]}
@@ -419,7 +469,7 @@ class Login extends Component {
                   style={[
                     loginText,
                     {
-                      marginLeft: 120
+                      marginLeft: screen.width / 3.5
                     }
                   ]}
                 >

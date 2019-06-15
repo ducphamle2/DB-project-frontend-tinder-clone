@@ -43,7 +43,7 @@ class LogoTitle extends Component {
           data={data}
           value={data[0].value}
           dropdownPosition={0}
-          containerStyle={{ marginRight: 60, marginLeft: 30, marginBottom: 23 }}
+          containerStyle={{ marginRight: 50, marginLeft: 45, marginBottom: 23 }}
           fontSize={18}
           baseColor={"#FFFFFF"}
           textColor={"#FFFFFF"}

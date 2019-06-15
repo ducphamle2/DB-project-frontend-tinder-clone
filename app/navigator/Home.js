@@ -27,6 +27,7 @@ import { myLoginConstant } from "../utils/Constants";
 import LoginAction from "../redux/actions/LoginAction";
 import socketIO from "socket.io-client";
 import TitleName from "../render_component/TitleName";
+import socketUtil from '../startSocketIO';
 
 const KEYS_TO_FILTERS = ["username"]; // key used in filter
 
@@ -70,9 +71,20 @@ class Home extends Component {
     this.handleAddButton = this.handleAddButton.bind(this);
     this.extractImageUrlFilter = this.extractImageUrlFilter.bind(this);
     this.getIndex = this.getIndex.bind(this);
-    this.handleSocket = this.handleSocket.bind(this);
     this.extractHeaderFilter = this.extractHeaderFilter.bind(this);
+
+    this.reRenderSomething = this.props.navigation.addListener('willFocus', () => {
+      //Put your code here you want to rerender, in my case i want to rerender the data 
+      //im fetching from firebase and display the changes
+      // solution from: https://github.com/react-navigation/react-navigation/issues/922
+
+      //this.componentDidMount();
+    });
   }
+
+  //componentWillUnmount() {
+  //  this.reRenderSomething;
+  //}
 
   /* this will call the api to get all the information we need about possible liked candidates including pictures, names, etc...
 		Correct data type: 
@@ -119,41 +131,7 @@ class Home extends Component {
   }
 
   componentDidMount() {
-    const socket = socketIO("http://192.168.56.1:3000/", {
-      transports: ["websocket"],
-      jsonp: false
-    });
-    socket.connect();
-    const data = { userId: this.props.id };
-    socket.emit("join-room", data); // send userId to socket
-    socket.on("like-matched", ({ matchedId, header, content }) => {
-      console.log("data from socket io when matched: ", {
-        matchedId,
-        header,
-        content
-      });
-      this.handleSocket({ matchedId, header, content });
-    });
-  }
-
-  handleSocket({ matchedId, header, content }) {
-    const data = { matchedId, header, content };
-    console.log("data in handle socket >>>>>>>>: ", data);
-    console.log("array state in handle socket >>>>>>: ", this.state.array);
-    Alert.alert(
-      "Notification",
-      header + ". " + content,
-      [
-        {
-          text: "OK",
-          onPress: () => {
-            console.log("OK pressed");
-          },
-          style: "cancel"
-        }
-      ],
-      { cancelable: false }
-    );
+    socketUtil.socketFunc(this.props.socket, this.props.id);
   }
 
   onGetInfoHandle(isSuccess, response, error) {
@@ -213,7 +191,7 @@ class Home extends Component {
   }
 
   onHandleMatched(isSuccess, response, error) {
-    console.log('die in here')
+    console.log("die in here");
     if (isSuccess) {
       console.log("response LIKED USERRRRRRRRRRRRRRRR: ", response);
       this.setState({
@@ -306,6 +284,9 @@ class Home extends Component {
         await api.getInfo(this.onGetInfoHandle.bind(this));
       } else if (this.props.title === TitleName.secondTitle) {
         await api.getLikedUsers(this.onHandleLikedUsers.bind(this));
+      }
+      else if (this.props.title === TitleName.thirdTitle) {
+        await api.getMatched(this.onHandleMatched.bind(this));
       }
     });
   }
@@ -404,7 +385,7 @@ class Home extends Component {
             renderItem={(item, index) => {
               //console.log('Item: ', item.item); //item is an object which consists of item name, item index, ...
               //console.log('index: ', item.index);
-              let i = this.getIndex(filteredUser, item.item);
+              let i = this.getIndex(this.state.array, item.item);
               //console.log('correct index in fake dataaaaaaaaa: ', i);
               //console.log('correct data: ', array[i]);
               return (
@@ -416,7 +397,7 @@ class Home extends Component {
                   data={FakeData.data}
                   //newData={FakeData.data[i].uri[0].uri}
                   trueIndex={i} // true index of an item in our data sent by api
-                  trueData={filteredUser}
+                  trueData={this.state.array}
                   title={this.props.title}
                   //data={this.state.array}
                 />
@@ -452,5 +433,6 @@ export default connect(state => ({
   title: state.UserInfoReducer.title,
   id: state.LoginReducer.id,
   password: state.LoginReducer.password,
-  email: state.LoginReducer.email
+  email: state.LoginReducer.email,
+  socket: state.LoginReducer.socket,
 }))(Home);

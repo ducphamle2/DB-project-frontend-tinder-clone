@@ -11,6 +11,7 @@ const UserInfoReducer = (
     city: "",
     image: [],
     title: "",
+    notification: []
   },
   action
 ) => {
@@ -33,6 +34,11 @@ const UserInfoReducer = (
       return {
         ...state,
         title: payload
+      };
+    case ActionType.SET_NOTIFICATION:
+      return {
+        ...state,
+        notification: payload
       };
     default:
       return state;

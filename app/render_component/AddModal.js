@@ -24,15 +24,25 @@ export default class AddModal extends Component {
   }
 
   showAddModal() {
-    this.refs.myModal.open();
+    Alert.alert(
+      "Notification",
+      "This function has not been supported yet !",
+      [
+        {
+          text: "OK",
+          style: "cancel"
+        }
+      ],
+      { cancelable: false }
+    );
   }
 
   handleAdding() {
     console.log("add button hit !!!");
     const { email } = this.state;
-		const { data } = this.props;
-		console.log('data: ', data[0].id)
-      /*
+    const { data } = this.props;
+    console.log("data: ", data[0].id);
+    /*
         if (email !== '' && email.length <= 50) {
             this.setState({ addErrorMessage: '' }); // state is reset
             //const payload = { email };
@@ -47,19 +57,18 @@ export default class AddModal extends Component {
       this.setState({ addErrorMessage: "Invalid email input !" });
 		}
 		*/
-		setTimeout(async () => {
-			await api.getOneInfo(data[0].id, this.onHandleGetUserInfo.bind(this));
-		})
-	}
-	
-	onHandleGetUserInfo(isSuccess, response, error) {
-		if (isSuccess) {
-			console.log('response after searching user info: ', response);
-		}
-		else {
-			console.log('error: ', error);
-		}
-	}
+    setTimeout(async () => {
+      await api.getOneInfo(data[0].id, this.onHandleGetUserInfo.bind(this));
+    });
+  }
+
+  onHandleGetUserInfo(isSuccess, response, error) {
+    if (isSuccess) {
+      console.log("response after searching user info: ", response);
+    } else {
+      console.log("error: ", error);
+    }
+  }
 
   onHandleAddUser(isSuccess, response, error) {}
 

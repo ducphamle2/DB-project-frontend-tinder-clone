@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import StringUtil from "../utils/StringUtils";
 import images from "../assets/image_source/Images";
 import api from "../config/Api";
+import socketUtil from "../startSocketIO";
 const { height, width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
@@ -68,11 +69,14 @@ class RenderPictures extends React.Component {
       }
     ];
     if (params.length === 0) {
+      console.log('param length is equal to zero');
       return temp;
     } else {
       for (let i = 0; i < params.length; i++) {
+        console.log('param value: ', params[i].url)
         temp[params[i].order].uri = params[i].url;
       }
+      console.log('temp after sorting: ', temp);
       return temp;
     }
   }
@@ -135,14 +139,14 @@ class RenderPictures extends React.Component {
       const { params } = this.props.navigation.state;
       console.log("params: ", params);
       const image = this.getCorrectUserOrder(params);
-      console.log("images: ", images);
+      console.log("images: ", image);
       return (
         <View style={styles.container}>
           <Swiper>
             <View style={styles.slideContainer}>
               <Image
                 source={
-                  StringUtil.isEmpty(image[0].uri) ? images.user : images[0]
+                  StringUtil.isEmpty(image[0].uri) ? images.user : image[0]
                 }
                 style={styles.imgStyle}
               />
@@ -150,7 +154,7 @@ class RenderPictures extends React.Component {
             <View style={styles.slideContainer}>
               <Image
                 source={
-                  StringUtil.isEmpty(image[1].uri) ? images.user : images[1]
+                  StringUtil.isEmpty(image[1].uri) ? images.user : image[1]
                 }
                 style={styles.imgStyle}
               />
@@ -158,7 +162,7 @@ class RenderPictures extends React.Component {
             <View style={styles.slideContainer}>
               <Image
                 source={
-                  StringUtil.isEmpty(image[2].uri) ? images.user : images[2]
+                  StringUtil.isEmpty(image[2].uri) ? images.user : image[2]
                 }
                 style={styles.imgStyle}
               />
@@ -172,5 +176,6 @@ class RenderPictures extends React.Component {
 
 export default connect(state => ({
   image: state.UserInfoReducer.image,
-  id: state.LoginReducer.id
+  id: state.LoginReducer.id,
+  socket: state.LoginReducer.socket,
 }))(RenderPictures);

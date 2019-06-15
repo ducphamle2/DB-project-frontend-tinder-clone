@@ -22,6 +22,7 @@ import validation from "../utils/validations/Validation";
 import DataAsync from "../utils/DataAsync";
 import { myLoginConstant } from "../utils/Constants";
 import LoginAction from "../redux/actions/LoginAction";
+import socketUtil from "../startSocketIO";
 
 class PasswordChanger extends Component {
   constructor(props) {
@@ -115,7 +116,54 @@ class PasswordChanger extends Component {
 				{ cancelable: false }
 			);
     } else {
-      console.log("Error: ", error);
+      if (error.request.status === 500) {
+        Alert.alert(
+          "Notification",
+          "There is something wrong with our server. Sorry !",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      }
+      else if (response.request.status === 422) {
+        Alert.alert(
+          "Notification",
+          "Password is wrong or the new password cannot be updated for some reasons",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      }
+      else {
+        Alert.alert(
+          "Notification",
+          "Authentication failed",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      }
     }
   }
 
@@ -138,7 +186,7 @@ class PasswordChanger extends Component {
   }
 
   handleCancel() {
-    this.props.navigation.navigate("Drawer");
+    this.props.navigation.navigate("Home");
   }
 
   render() {
@@ -301,5 +349,6 @@ class PasswordChanger extends Component {
 
 export default connect(state => ({
   password: state.LoginReducer.password,
-  id: state.LoginReducer.id
+  id: state.LoginReducer.id,
+  socket: state.LoginReducer.socket,
 }))(PasswordChanger);

@@ -1,17 +1,30 @@
-import React, { Component } from 'react';
-import { Modal, Text, View, Dimensions, ImageBackground } from 'react-native';
+import React, { Component } from "react";
+import { Modal, Text, View, Dimensions, ImageBackground } from "react-native";
 
-import images from '../assets/image_source/Images';
-import ButtonSideBar from '../render_component/ButtonSideBar';
+import images from "../assets/image_source/Images";
+import ButtonSideBar from "../render_component/ButtonSideBar";
+import { connect } from "react-redux";
+import socketUtil from "../startSocketIO";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 const widPopup = (width * 4) / 5;
 
 // this class is used to popup a logout alert for the users to confirm logout or not
 class PopupLogout extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   render() {
-    const { cancelConfirm, isConfirm, confirm, message, nameBtnTop, nameBtnBot } = this.props;
+    const {
+      cancelConfirm,
+      isConfirm,
+      confirm,
+      message,
+      nameBtnTop,
+      nameBtnBot
+    } = this.props;
     return (
       <Modal
         animationType="fade"
@@ -26,43 +39,47 @@ class PopupLogout extends Component {
             height,
             width,
             flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: isConfirm ? 'rgba(0,0,0,0.5)' : 'transparent'
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: isConfirm ? "rgba(0,0,0,0.5)" : "transparent"
           }}
         >
           <ImageBackground
             source={images.dialogBg}
             style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
               width: widPopup,
               height: widPopup
             }}
             imageStyle={{
-              resizeMode: 'cover'
+              resizeMode: "cover"
             }}
           >
             <View
               style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
                 marginBottom: 5
               }}
             >
-              <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>{message}</Text>
+              <Text
+                style={{ color: "white", fontSize: 20, fontWeight: "bold" }}
+              >
+                {message}
+              </Text>
             </View>
 
             <View
               style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center'
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center"
               }}
             >
               <ButtonSideBar
@@ -86,4 +103,7 @@ class PopupLogout extends Component {
   }
 }
 
-export default PopupLogout;
+export default connect(state => ({
+  id: state.LoginReducer.id,
+  socket: state.LoginReducer.socket
+}))(PopupLogout);

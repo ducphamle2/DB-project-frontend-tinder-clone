@@ -13,7 +13,8 @@ const url = {
   MARK_READ: "noti/seen",
   MATCH: "user/matched",
   UPLOAD_IMAGE: "image",
-  GET_IMAGE: "image/"
+  GET_IMAGE: "image/",
+  DELETE_IMAGE: "image/"
 };
 
 function login(payload, callback) {
@@ -171,16 +172,22 @@ function changePassword(payload, callback) {
     });
 }
 
-function getNotification(callback) {
+function getNotification(payload, callback, type) {
   axios({
     method: "GET",
-    url: url.GET_NOTIFICATION
+    url: url.GET_NOTIFICATION,
+    // for GET http request, we use params to insert data inside.
+    // link: https://flaviocopes.com/node-axios/
+    params: {
+      limit: payload.limit,
+      offset: payload.offset,
+    }
   })
     .then(response => {
-      callback(true, response, null);
+      callback(true, response, null, type);
     })
     .catch(error => {
-      callback(false, null, error);
+      callback(false, null, error, type);
     });
 }
 
@@ -212,8 +219,6 @@ function getMatched(callback) {
 }
 
 function uploadImage(payload, callback) {
-  console.log("payload data: ", payload.data);
-  console.log("payload token: ", payload.token);
   axios({
     method: "POST",
     url: url.UPLOAD_IMAGE,
@@ -243,6 +248,14 @@ function getImage(payload, callback) {
     });
 }
 
+function deleteImage(payload) {
+  console.log('payload url: ', payload.url)
+  axios({
+    method: "DELETE",
+    url: url.DELETE_IMAGE + payload.url
+  })
+}
+
 const api = {
   login,
   register,
@@ -259,7 +272,8 @@ const api = {
   markAsRead,
   getMatched,
   uploadImage,
-  getImage
+  getImage,
+  deleteImage
 };
 
 export default api;

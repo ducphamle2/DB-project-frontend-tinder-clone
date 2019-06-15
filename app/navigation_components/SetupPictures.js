@@ -27,6 +27,7 @@ import { myLoginConstant } from "../utils/Constants";
 import UserInfoAction from "../redux/actions/UserInfoAction";
 import ImagePicker from "react-native-image-picker";
 import api from "../config/Api";
+import socketUtil from "../startSocketIO";
 
 const { height, width } = Dimensions.get("window");
 
@@ -113,7 +114,11 @@ class SetupPictures extends Component {
   async handleApply() {
     const { dispatch } = this.props;
     const { imgOne, imgTwo, imgThree } = this.state;
-    if (this.countDifference === 0) {
+    if (
+      StringUtil.isEmpty(this.state.imgOne.type) &&
+      StringUtil.isEmpty(this.state.imgTwo.type) &&
+      StringUtil.isEmpty(this.state.imgThree.type)
+    ) {
       Alert.alert(
         "Notification",
         "The pictures are the same !!",
@@ -175,7 +180,16 @@ class SetupPictures extends Component {
         var payloadThree = {};
 
         if (!StringUtil.isEmpty(this.state.imgOne.type)) {
-          console.log('img one not empty')
+          // first we need to delete the image we want to replace first, and then set the new one.
+          if (!StringUtil.isEmpty(this.props.image[0].uri)) {
+            // if the image is not empty then we delete the old one
+            let deleteData = {
+              url: this.props.image[0].uri.id
+            };
+            setTimeout(async () => {
+              await api.deleteImage(deleteData);
+            }, 200);
+          }
           const data = {
             image:
               "data:" +
@@ -189,11 +203,21 @@ class SetupPictures extends Component {
             data: data,
             token: this.state.token
           };
-          await api.uploadImage(payload, this.onHandleUploadImage.bind(this));
+          setTimeout(async () => {
+            await api.uploadImage(payload, this.onHandleUploadImage.bind(this));
+          }, 500);
         }
 
         if (!StringUtil.isEmpty(this.state.imgTwo.type)) {
-          console.log('img two not empty')
+          console.log("img two not empty");
+          if (!StringUtil.isEmpty(this.props.image[1].uri)) {
+            let deleteData = {
+              url: this.props.image[1].uri.id
+            };
+            setTimeout(async () => {
+              await api.deleteImage(deleteData);
+            }, 200);
+          }
           const data = {
             image:
               "data:" +
@@ -207,11 +231,24 @@ class SetupPictures extends Component {
             data: data,
             token: this.state.token
           };
-          await api.uploadImage(payloadTwo, this.onHandleUploadImage.bind(this));
+          setTimeout(async () => {
+            await api.uploadImage(
+              payloadTwo,
+              this.onHandleUploadImage.bind(this)
+            );
+          }, 500);
         }
 
         if (!StringUtil.isEmpty(this.state.imgThree.type)) {
-          console.log('img three not empty')
+          console.log("img three not empty");
+          if (!StringUtil.isEmpty(this.props.image[2].uri)) {
+            let deleteData = {
+              url: this.props.image[2].uri.id
+            };
+            setTimeout(async () => {
+              await api.deleteImage(deleteData);
+            }, 200);
+          }
           const data = {
             image:
               "data:" +
@@ -225,7 +262,12 @@ class SetupPictures extends Component {
             data: data,
             token: this.state.token
           };
-          await api.uploadImage(payloadThree, this.onHandleUploadImage.bind(this));
+          setTimeout(async () => {
+            await api.uploadImage(
+              payloadThree,
+              this.onHandleUploadImage.bind(this)
+            );
+          }, 500);
         }
       }
     }
@@ -237,13 +279,16 @@ class SetupPictures extends Component {
       console.log("response: ", response);
       Alert.alert(
         "Notification",
-        "Pictures have been setup successfully. You can click your profile pictures to see them !",
+        "Pictures have been updated successfully !",
         [
           {
             text: "OK",
             style: "cancel",
             onPress: async () => {
-              await api.getImage(this.props.id, this.onHandleGetImage.bind(this))
+              await api.getImage(
+                this.props.id,
+                this.onHandleGetImage.bind(this)
+              );
             }
           } // go back to sidebar
         ],
@@ -253,7 +298,7 @@ class SetupPictures extends Component {
       console.log("error: ", error);
       Alert.alert(
         "Notification",
-        "Error on uploading pictures. Sorry !",
+        "Something is wrong with image storage !",
         [
           {
             text: "OK",
@@ -270,7 +315,7 @@ class SetupPictures extends Component {
 
   async onHandleGetImage(isSuccess, response, error) {
     if (isSuccess) {
-      console.log('response handle get image: ', response);
+      console.log("response handle get image: ", response);
       if (response.data.length === 0) {
         const image = [
           {
@@ -376,66 +421,82 @@ class SetupPictures extends Component {
     console.log("props image: ", this.props);
     const { imgStyle } = style;
     return (
-      <View style={styles.container}>
-        <View style={{ flex: 1, flexDirection: "row", marginTop: height / 30 }}>
-          <TouchableOpacity
-            style={{ marginRight: 10 }}
-            onPress={this.handleFirstPicture.bind(this)}
+      <ScrollView keyboardShouldPersistTaps="always">
+        <View style={styles.container}>
+          <View
+            style={{ flex: 1, flexDirection: "row", marginTop: height / 30 }}
           >
-            <Image source={images.camera} />
-          </TouchableOpacity>
-          <Text>1st pic</Text>
-          <Image
-            style={imgStyle}
-            source={
-              StringUtil.isEmpty(this.state.imgOne)
-                ? images.user
-                : { uri: StringUtil.isEmpty(this.state.imgOne.uri.url) ? this.state.imgOne.uri : this.state.imgOne.uri.url}
-            }
-          />
-        </View>
-        <View style={{ flex: 1, flexDirection: "row", marginTop: 10 }}>
-          <TouchableOpacity
-            style={{ marginRight: 10 }}
-            onPress={this.handleSecondPicture.bind(this)}
+            <TouchableOpacity
+              style={{ marginRight: 10 }}
+              onPress={this.handleFirstPicture.bind(this)}
+            >
+              <Image source={images.camera} />
+            </TouchableOpacity>
+            <Text>1st pic</Text>
+            <Image
+              style={imgStyle}
+              source={
+                StringUtil.isEmpty(this.state.imgOne)
+                  ? images.user
+                  : {
+                      uri: StringUtil.isEmpty(this.state.imgOne.uri.url)
+                        ? this.state.imgOne.uri
+                        : this.state.imgOne.uri.url
+                    }
+              }
+            />
+          </View>
+          <View style={{ flex: 1, flexDirection: "row", marginTop: 10 }}>
+            <TouchableOpacity
+              style={{ marginRight: 10 }}
+              onPress={this.handleSecondPicture.bind(this)}
+            >
+              <Image source={images.camera} />
+            </TouchableOpacity>
+            <Text>2nd pic</Text>
+            <Image
+              style={imgStyle}
+              source={
+                StringUtil.isEmpty(this.state.imgTwo)
+                  ? images.user
+                  : {
+                      uri: StringUtil.isEmpty(this.state.imgTwo.uri.url)
+                        ? this.state.imgTwo.uri
+                        : this.state.imgTwo.uri.url
+                    }
+              }
+            />
+          </View>
+          <View style={{ flex: 1, flexDirection: "row", marginTop: 20 }}>
+            <TouchableOpacity
+              style={{ marginRight: 10 }}
+              onPress={this.handleThirdPicture.bind(this)}
+            >
+              <Image source={images.camera} />
+            </TouchableOpacity>
+            <Text>3rd pic</Text>
+            <Image
+              style={imgStyle}
+              source={
+                StringUtil.isEmpty(this.state.imgThree)
+                  ? images.user
+                  : {
+                      uri: StringUtil.isEmpty(this.state.imgThree.uri.url)
+                        ? this.state.imgThree.uri
+                        : this.state.imgThree.uri.url
+                    }
+              }
+            />
+          </View>
+          <TouchableHighlight
+            disabled={false}
+            style={styles.loginButton}
+            onPress={this.handleApply.bind(this)}
           >
-            <Image source={images.camera} />
-          </TouchableOpacity>
-          <Text>2nd pic</Text>
-          <Image
-            style={imgStyle}
-            source={
-              StringUtil.isEmpty(this.state.imgTwo)
-                ? images.user
-                : { uri: StringUtil.isEmpty(this.state.imgTwo.uri.url) ? this.state.imgTwo.uri : this.state.imgTwo.uri.url }
-            }
-          />
+            <Text style={{ fontSize: 16, color: "white" }}>APPLY</Text>
+          </TouchableHighlight>
         </View>
-        <View style={{ flex: 1, flexDirection: "row", marginTop: 20 }}>
-          <TouchableOpacity
-            style={{ marginRight: 10 }}
-            onPress={this.handleThirdPicture.bind(this)}
-          >
-            <Image source={images.camera} />
-          </TouchableOpacity>
-          <Text>3rd pic</Text>
-          <Image
-            style={imgStyle}
-            source={
-              StringUtil.isEmpty(this.state.imgThree)
-                ? images.user
-                : { uri: StringUtil.isEmpty(this.state.imgThree.uri.url) ? this.state.imgThree.uri : this.state.imgThree.uri.url }
-            }
-          />
-        </View>
-        <TouchableHighlight
-          disabled={false}
-          style={styles.loginButton}
-          onPress={this.handleApply.bind(this)}
-        >
-          <Text style={{ fontSize: 16, color: "white" }}>APPLY</Text>
-        </TouchableHighlight>
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -444,6 +505,7 @@ export default connect(state => ({
   image: state.UserInfoReducer.image,
   token: state.LoginReducer.token,
   id: state.LoginReducer.id,
+  socket: state.LoginReducer.socket
 }))(SetupPictures);
 
 const style = StyleSheet.create({

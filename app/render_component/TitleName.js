@@ -1,4 +1,4 @@
-const firstTitle = "People you may like";
+const firstTitle = "Likable list";
 const secondTitle = "Liked list";
 const thirdTitle = "Matched list";
 

@@ -43,8 +43,7 @@ const LoginStyle = StyleSheet.create({
     loginButton: {
         marginBottom: 15,
         marginTop: 15,
-        marginLeft: 135,
-        marginRight: 50,
+        marginLeft: width / 3.1,
         backgroundColor: '#DB1E4A',
         height: height / 15,
         flexDirection: 'row',

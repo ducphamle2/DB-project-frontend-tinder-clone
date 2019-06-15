@@ -12,10 +12,12 @@ import Modal from "react-native-modalbox";
 import api from "../config/Api";
 import LoginStyle from "../assets/styles/LoginStyle";
 import { View, Row } from "native-base";
+import socketUtil from "../startSocketIO";
+import { connect } from "react-redux";
 
 var screen = Dimensions.get("window");
 
-export default class AddModal extends Component {
+export default class ModalFeedback extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -53,7 +55,7 @@ export default class AddModal extends Component {
 
   // maybe we can use redux here to store feedback data. After adding we update it, which affects feedback
   onHandleAddUser(isSuccess, response, error) {
-		const {navigate} = this.props.navigation;
+    const { navigate } = this.props.navigation;
     if (isSuccess) {
       console.log("success");
       Alert.alert(
@@ -63,8 +65,8 @@ export default class AddModal extends Component {
           {
             text: "OK",
             onPress: () => {
-							console.log("OK pressed");
-							navigate('Drawer');
+              console.log("OK pressed");
+              navigate("Drawer");
             },
             style: "cancel"
           }
@@ -74,7 +76,7 @@ export default class AddModal extends Component {
     } else {
       Alert.alert(
         "Notification",
-        "Sorry, there is something wrong, your feedback cannot be sent !",
+        "Sorry, there is something wrong with our server, your feedback cannot be sent !",
         [
           {
             text: "OK",
@@ -246,3 +248,4 @@ export default class AddModal extends Component {
     );
   }
 }
+

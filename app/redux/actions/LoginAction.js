@@ -13,6 +13,7 @@ const LoginAction = {
     registerEnter: payload => ({type: ActionType.REGISTER_ENTER, payload}),
     setUserInfo: payload => ({type: ActionType.SET_USER_INFO, payload}),
     setPassword: payload => ({type: ActionType.SET_PASSWORD, payload}),
+    setSocket: payload => ({type: ActionType.SET_SOCKET, payload}),
 }
 
 export default LoginAction;

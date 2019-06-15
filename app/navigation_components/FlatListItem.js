@@ -56,7 +56,7 @@ const flatStyles = StyleSheet.create({
     borderRadius: width / 10
   },
   feedbackStyle: {
-    margin: width / 30,
+    margin: width / 30
   },
   buttonStyle: {
     position: "absolute",
@@ -98,13 +98,12 @@ class FlatListItem extends React.Component {
     const { item, trueIndex, trueData } = this.props;
     if (this.props.flag) {
       console.log("array in handleParentComponent: ", trueData);
-      console.log('true index ????: ', trueIndex);
+      console.log("true index ????: ", trueIndex);
       let id = trueData[trueIndex].id;
       console.log("true data correct index ID: ", id);
       console.log("true name: ", trueData[trueIndex].username);
       this.props.navigation.navigate("UserDetail", trueData[trueIndex]); // it should be the entire item not just name
     } else {
-      console.log("true data: ", trueData[trueIndex]);
       this.props.navigation.navigate("FeedbackDetail", trueData[trueIndex]);
       //this.props.navigation.navigate('FeedbackDetail', header); Send header to call api in the detail
     }
@@ -112,9 +111,17 @@ class FlatListItem extends React.Component {
 
   handlePicturePressed() {
     const { navigate } = this.props.navigation;
-    const { trueData, trueIndex } = this.props;
-    console.log("before navigatin to Render Pictures: ", trueData[trueIndex]);
-    navigate("RenderPictures", trueData[trueIndex].images); // should pass an array of images
+    const { trueData, trueIndex, title } = this.props;
+    if (
+      title !== TitleName.firstTitle &&
+      title !== TitleName.secondTitle &&
+      title !== TitleName.thirdTitle
+    ) {
+      console.log("THIS FLATLIST IS FROM FEEDBACK");
+    } else {
+      console.log("before navigatin to Render Pictures: ", trueData[trueIndex]);
+      navigate("RenderPictures", trueData[trueIndex].images); // should pass an array of images
+    }
   }
 
   async swipeContact() {
@@ -146,6 +153,38 @@ class FlatListItem extends React.Component {
       console.log("response data bitch: ", response);
     } else {
       console.log("error: ", error);
+      if (error.request.status === 500) {
+        Alert.alert(
+          "Notification",
+          "There is something wrong with our server. Sorry !",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      }
+      else {
+        Alert.alert(
+          "Notification",
+          "User not found",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("OK pressed");
+              },
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      }
     }
     //data.splice(item.index, 1); // splice function is used to delete element
     //refresh.refreshFlatList();
@@ -162,8 +201,8 @@ class FlatListItem extends React.Component {
 
   // get the first picture of users
   getAvatar() {
-    const {trueData, trueIndex} = this.props;
-    console.log('true data: ', trueData[trueIndex].images)
+    const { trueData, trueIndex } = this.props;
+    console.log("true data images for the list: ", trueData[trueIndex].images);
     if (StringUtil.isEmpty(trueData[trueIndex].images.length)) {
       return null;
     }
@@ -175,7 +214,15 @@ class FlatListItem extends React.Component {
   }
 
   render() {
-    const { item, refresh, data, index, title } = this.props;
+    const {
+      item,
+      refresh,
+      data,
+      index,
+      title,
+      trueIndex,
+      trueData
+    } = this.props;
     // these will be the headers
     var swipeSettings = {};
     // if user choose likable users => they can like. When it comes to liked users they cannot do anything
@@ -260,13 +307,16 @@ class FlatListItem extends React.Component {
         sectionId: 1
       };
     }
-    console.log("before rendering flatlist");
     // const { newData } = this.props;
     let image = {
       uri: images.feedback
     };
-    console.log('title currently: ', title);
-    if (title === TitleName.firstTitle || title === TitleName.secondTitle || title === TitleName.thirdTitle) { //distinguish from home and other lists
+    if (
+      title === TitleName.firstTitle ||
+      title === TitleName.secondTitle ||
+      title === TitleName.thirdTitle
+    ) {
+      //distinguish from home and other lists
       image = {
         uri: this.getAvatar()
       };
@@ -279,8 +329,18 @@ class FlatListItem extends React.Component {
           >
             <TouchableOpacity onPress={this.handlePicturePressed.bind(this)}>
               <Image
-                source={StringUtil.isEmpty(image.uri) ? images.user : image.uri === images.feedback ? images.feedback : image}
-                style={image.uri === images.feedback ? flatStyles.feedbackStyle : flatStyles.imgStyle}
+                source={
+                  StringUtil.isEmpty(image.uri)
+                    ? images.user
+                    : image.uri === images.feedback
+                    ? images.feedback
+                    : image
+                }
+                style={
+                  image.uri === images.feedback
+                    ? flatStyles.feedbackStyle
+                    : flatStyles.imgStyle
+                }
               />
             </TouchableOpacity>
             <View style={{ flex: 1, flexDirection: "column", height: 60 }}>

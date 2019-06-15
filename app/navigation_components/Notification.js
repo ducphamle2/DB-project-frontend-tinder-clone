@@ -25,10 +25,11 @@ import DataAsync from "../utils/DataAsync";
 import { myLoginConstant } from "../utils/Constants";
 import LoginAction from "../redux/actions/LoginAction";
 import Tick from "../render_component/Tick";
+import socketUtil from "../startSocketIO";
 
 const { width, height } = Dimensions.get("window");
 
-export default class Notification extends Component {
+class Notification extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -71,7 +72,11 @@ export default class Notification extends Component {
   };
 
   componentWillMount() {
-    api.getNotification(this.onHandleGetNotification.bind(this));
+    payload = {
+      limit: 20,
+      offset: 0
+    };
+    api.getNotification(payload, this.onHandleGetNotification.bind(this), 1); // load from scratch
   }
 
   // replicate CWP notification file
@@ -81,13 +86,63 @@ export default class Notification extends Component {
     });
   }
 
-  onHandleGetNotification(isSuccess, response, error) {
+  onHandleGetNotification(isSuccess, response, error, type) {
     if (isSuccess) {
-      this.setState({
-        notifications: response.data,
-        loading: false,
-        refreshing: false
-      });
+      // if it is will mount or we refresh the page => get the first 20 notifications only
+      if (type === 1) {
+        console.log('TYPE EQUAL TO 1')
+        this.setState({
+          notifications: response.data,
+          loading: false,
+          refreshing: false
+        });
+
+        this.props.dispatch(UserInfoAction.setNotification(response.data));
+      } else {
+        console.log("TYPE EQUALS TO 2");
+        // we need to append the notifications we have not loaded yet in the server
+        const data = this.props.notification;
+        // push more notifications in the list.
+        for (let i = 0; i < response.data.length; i++) {
+          data.push(response.data[i]);
+        }
+
+        this.props.dispatch(UserInfoAction.setNotification(data));
+
+        this.setState({
+          notifications: data,
+          loading: false,
+          refreshing: false
+        });
+      }
+    } else {
+      if (response.request.status === 500) {
+        Alert.alert(
+          "Notification",
+          "There is something wrong with our server. Sorry !!",
+          [
+            {
+              text: "OK",
+              onPress: () => {},
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      } else {
+        Alert.alert(
+          "Notification",
+          "Unknown error !!",
+          [
+            {
+              text: "OK",
+              onPress: () => {},
+              style: "cancel"
+            }
+          ],
+          { cancelable: false }
+        );
+      }
     }
   }
 
@@ -182,14 +237,32 @@ export default class Notification extends Component {
   };
 
   handleLoadMore() {
+    console.log("load more");
+    console.log('length of notification now: ', this.props.notification.length);
     setTimeout(async () => {
-      await api.getNotification(this.onHandleGetNotification.bind(this));
+      payload = {
+        limit: 20,
+        offset: this.props.notification.length
+      };
+      await api.getNotification(
+        payload,
+        this.onHandleGetNotification.bind(this),
+        2
+      );
     }, 500);
   }
 
   _onRefresh() {
     this.setState({ refreshing: true }, async () => {
-      await api.getNotification(this.onHandleGetNotification.bind(this));
+      payload = {
+        limit: 20,
+        offset: 0
+      };
+      await api.getNotification(
+        payload,
+        this.onHandleGetNotification.bind(this),
+        1
+      );
     });
   }
 
@@ -199,18 +272,22 @@ export default class Notification extends Component {
       <View
         style={{
           flex: 1,
-          padding: 10,
+          padding: 20,
+          marginTop: 60,
+          marginLeft: width / 25,
+          marginRight: width / 10,
           //backgroundColor: "#3FA1F6",
-          maxHeight: height / 2,
+          maxHeight: height / 1.5,
           width: width - 30,
           justifyContent: "center",
-          flexDirection: "column"
+          flexDirection: "column",
+          borderColor: "black",
+          borderWidth: 1
         }}
       >
         <FlatList
           data={headerData}
           renderItem={(item, index) => {
-            console.log("Item: ", item.item); //item is an object which consists of item name, item index, ...
             //console.log('index: ', item.index);
             //let i = this.getIndex(item.item);
             //console.log('correct index in fake dataaaaaaaaa: ', i);
@@ -241,3 +318,9 @@ export default class Notification extends Component {
     );
   }
 }
+
+export default connect(state => ({
+  id: state.LoginReducer.id,
+  socket: state.LoginReducer.socket,
+  notification: state.UserInfoReducer.notification
+}))(Notification);
