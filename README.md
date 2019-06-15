@@ -25,9 +25,7 @@ Below is what i have collected to be able to fully install and run successfully 
 
 ## 2. Install react-native (for both - after you have installed npm)
 
-  ```
-  npm install -g react-native-cli
-  ```
+  ```npm install -g react-native-cli```
   
 ## 3. Install Android Studio :
 
