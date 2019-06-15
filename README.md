@@ -1,40 +1,59 @@
 # react-native-chatappSE-mobile
 a chatapp school project using react-native as frontend.
 
-Nếu các bác muốn tài liệu cài đặt official thì đây và skip readme này lol
+The official documentation for react-native installation
 https://facebook.github.io/react-native/docs/getting-started.html
 
-Còn không thì đọc bên dưới:
-## 1. Cài Nodejs + npm. 
-  **a) Cho Linux thì:** 
-    ```sudo apt-get install curl / sudo apt install curl ```
-    ```curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash ``` -
-    ```sudo apt-get install -y nodejs ```
-  Tôi copy ở https://github.com/nodesource/distributions/blob/master/README.md, có thể cái 11.x sẽ thay cho version hiện tại
-  b) Cho Windows thì:
-    Cứ download file xong install .exe như bình thường lol là có npm và node
-
-## 2. Cài react-native (cho cả 2):
-  npm install -g react-native-cli
+Below is what i have collected to be able to fully install and run successfully a react-native application on Android (IOS needs MacOS):
+## 1. Install Nodejs + npm. 
+  **a) Linux users:** 
   
-## 3. Cài Android Studio (bước mệt mỏi nhất =))):
-  a) Cho Linux: 
-    Tải package xong unzip ra, vào folder bin bên trong rồi mở terminal trong đó lên, chạy ./studio.sh để install. 
-    Có mấy cái qtrong như Android SDK, Android SDK platform. còn Android Virtual Device thì chắc không cần nhưng cứ cài cho chắc.
-    Cài xong sẽ ra 1 cái bảng trong đấy có phần 'Start a new Android Studio project' các thứ. Thì ấn vào configure vào SDK manager
-    Trong đó, vào SDK Platforms, ấn show package details và tick mấy cái SDK platform chủ chốt như 28, 27, 26, 23 để cài
-    Sang đến SDK Tools, tick 23.0.1, 26.0.2, 27.0.1, 27.0.3, 28.0.3. Lí do cài nhiều vì react-native dễ lỗi lắm vì quá nhiều version chồng chéo nhau lol. Tick cả GPU debugging tools, Android SDK Platform-tools, Android SDK tools, Google USB Driver, Android Emulator, Google USB Drive, Intel x86 / Google APIs, Android Support Repository & Google Repository. 
+    ```sudo apt-get install curl / sudo apt install curl ```
+    
+    ```curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash ``` -
+    
+    ```sudo apt-get install -y nodejs ```
+  the installation source for node is: https://github.com/nodesource/distributions/blob/master/README.md, try to install the latest or the most reliable version
+  **b) Window users:**
+  
+    Download the .exe file and install.
+  **check if npm has been installed successfully or not: 
+  
+  ``` npm --version ```
+
+## 2. Install react-native (for both - after you have installed npm. Check ):
+
+  ```npm install -g react-native-cli```
+  
+## 3. Install Android Studio :
+
+  **a) Linux users:**
+    Install the package then unzip it. Next, enter the **bin** folder through terminal, then run: 
+    
+    ```./studio.sh```
+    
+    for installation. Remember to tick Android SDK, Android SDK platform. còn Android Virtual Device for installation.
+    
+    After finishing, a panel will apprear with a sentence like _Start a new Android Studio project_. Hit configure in the right corner and enter SDK manager. Inside, hit **show package details** and tick important SDK platforms like 28, 27, 26 and 23. Tick SDK tools 23.0.1, 26.0.2, 27.0.1, 27.0.3, 28.0.3 also. Lastly, tick GPU debugging tools, Android SDK Platform-tools, Android SDK tools, Google USB Driver, Android Emulator, Google USB Drive, Intel x86 / Google APIs, Android Support Repository & Google Repository and install all of them.
+    
     configure ANDROID_HOME: copy cụm dưới vào $HOME/.profile
-      export ANDROID_HOME=$HOME/Android/Sdk
+    
+    ```  export ANDROID_HOME=$HOME/Android/Sdk
       export PATH=$PATH:$ANDROID_HOME/emulator
       export PATH=$PATH:$ANDROID_HOME/tools
       export PATH=$PATH:$ANDROID_HOME/tools/bin
       export PATH=$PATH:$ANDROID_HOME/platform-tools
-      => check xem setup đc chưa = cách echo $PATH
+      
+    ```
+    => check: 
     
-   b) Cho Windows:
-    Same shit nhưng mà có file .exe thay vì phải dùng terminal. 
-    Configure ANDROID_HOME thì đọc trong này là ez https://facebook.github.io/react-native/docs/getting-started.html
+    ``` echo $PATH ```
+    
+   **b) Cho Windows:**
+    It is similar but we need to use .exe file instead of terminal. 
+    for ANDROID_HOME configuration in Windows:
+    
+    https://facebook.github.io/react-native/docs/getting-started.html
     
 ## 4. chạy react-native project:
     Mỗi project đều có các node modules riêng của nó (node modules kiểu các libraries import vào) thì mỗi lần add modules (ví dụ add module react-native-i18n) thì sẽ npm install module đó. Còn với 1 project pull từ git về sẽ k có node modules và phải install qua: npm install (vào thư mục project). Ngoai ra phai link cac modules vao project qua: react-native link. Neu add them thi type: react-native link <module-name-here>. Possible error: add them 1 module nhung lai dung react-native link => ez to get error.
