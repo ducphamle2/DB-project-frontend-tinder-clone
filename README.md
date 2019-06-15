@@ -5,7 +5,7 @@ Nếu các bác muốn tài liệu cài đặt official thì đây và skip read
 https://facebook.github.io/react-native/docs/getting-started.html
 
 Còn không thì đọc bên dưới:
-# 1. Cài Nodejs + npm. 
+**1. Cài Nodejs + npm.** 
   a) Cho Linux thì: 
     sudo apt-get install curl / sudo apt install curl
     curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
@@ -14,10 +14,10 @@ Còn không thì đọc bên dưới:
   b) Cho Windows thì:
     Cứ download file xong install .exe như bình thường lol là có npm và node
 
-# 2. Cài react-native (cho cả 2):
+**2. Cài react-native (cho cả 2):**
   npm install -g react-native-cli
   
-# 3. Cài Android Studio (bước mệt mỏi nhất =))):
+**3. Cài Android Studio (bước mệt mỏi nhất =))):**
   a) Cho Linux: 
     Tải package xong unzip ra, vào folder bin bên trong rồi mở terminal trong đó lên, chạy ./studio.sh để install. 
     Có mấy cái qtrong như Android SDK, Android SDK platform. còn Android Virtual Device thì chắc không cần nhưng cứ cài cho chắc.
@@ -36,7 +36,7 @@ Còn không thì đọc bên dưới:
     Same shit nhưng mà có file .exe thay vì phải dùng terminal. 
     Configure ANDROID_HOME thì đọc trong này là ez https://facebook.github.io/react-native/docs/getting-started.html
     
- # 4. chạy react-native project:
+ **4. chạy react-native project:**
     Mỗi project đều có các node modules riêng của nó (node modules kiểu các libraries import vào) thì mỗi lần add modules (ví dụ add module react-native-i18n) thì sẽ npm install module đó. Còn với 1 project pull từ git về sẽ k có node modules và phải install qua: npm install (vào thư mục project). Ngoai ra phai link cac modules vao project qua: react-native link. Neu add them thi type: react-native link <module-name-here>. Possible error: add them 1 module nhung lai dung react-native link => ez to get error.
     
     Để chạy thì cần cắm đt vào or tạo 1 máy ảo (emulator). Cái này tôi suggest tải genymotion về để tạo và chạy máy ảo, vì cái android emulator rất tù và hay lỗi, và giật tung đít nên đừng dùng =)).
