@@ -56,7 +56,7 @@ Below is what i have collected to be able to fully install and run successfully 
     
     https://facebook.github.io/react-native/docs/getting-started.html
     
-## 4. chạy react-native project:
+## 4. Init and run react-native project:
   In order to initate a project. Type command: 
   
   ```react-native init name_of_your_project```
@@ -99,6 +99,6 @@ Below is what i have collected to be able to fully install and run successfully 
   
   https://facebook.github.io/react-native/docs/signed-apk-android
      
-## NOTE: react-native run-android / run-ios chỉ chạy được khi đã bật máy ảo / cắm máy vào, node modules đã được install (npm install) 
+## NOTE: react-native run-android / run-ios can only run when a device is connected (either mobile phones or virtual devices) and node modules is installed (npm install) 
 
 # IF YOU ARE TOO LAZY, JUST COME TO ME, I WILL DIRECTLY INSTALL THE APP INTO YOUR PHONE IMMEDIATELY !!
