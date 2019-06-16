@@ -1,0 +1,21 @@
+Nguyen Duc Anh: 
+  +) Handle the architecture on the server side. Implement serveral APIs
+including API docs: register, feedback, swipe and matched users, image and notification.
+  +) Write the report and topic proposal
+
+Nguyen Hoai Nam: 
+  +) Support Duc Anh in building the architecture, and implement some 
+APIs on the server side: change password, update information, get user information
+and authentication when logging in.
+  +) Draw relational schema, do the slides for presentation.
+
+Pham Le Duc: 
+  +) Design and build the client application (including manual installation for the app)
+  +) Design and control the program, data flow of the application, draw activity diagram
+and ER diagram
+
+All: 
+  +) participate in building the correct database for the application
+  +) Help each other in how the program should behave, and what data should be sent and
+received
+  +) MOST IMPORTANTLY, HELP EACH OTHER IN DEBUGGING BOTH CLIENT AND SERVER SIDE !! 

@@ -19,7 +19,7 @@ import {
 } from "react-native";
 import { connect } from "react-redux";
 import LoginAction from "../redux/actions/LoginAction";
-import UserInfoAction from '../redux/actions/UserInfoAction';
+import UserInfoAction from "../redux/actions/UserInfoAction";
 import StateUtil from "../utils/StateUtil";
 import LoginStyle from "../assets/styles/LoginStyle";
 import images from "../assets/image_source/Images";
@@ -40,10 +40,10 @@ class Login extends Component {
     // state is set because username & password will change a lot
     this.state = {
       //mail: "antimage_is_here@gmail.com",
-      password: 'Pabcdef3#',
+      password: "Pabcdef3#",
       //email: 'how_are_you@gmail.com',
       //password: "123456",
-      email: 'ducphamle212@gmail.com',
+      email: "ducphamle212@gmail.com",
       //password: '123456',
       loginErrorMessage: "",
       color: "#DB1E4A",
@@ -71,7 +71,7 @@ class Login extends Component {
           "The app is now logging in, please wait ...",
           [
             {
-              text: "OK",
+              text: "OK"
             }
           ]
         );
@@ -100,15 +100,11 @@ class Login extends Component {
       console.log("response: ", response);
       // if successfully login
       if (response.request.status === 200) {
-        Alert.alert(
-          "Notification",
-          "Successfully login !!",
-          [
-            {
-              text: "OK",
-            }
-          ]
-        );
+        Alert.alert("Notification", "Successfully login !!", [
+          {
+            text: "OK"
+          }
+        ]);
         console.log("SUCESSFULLYYYYYYY");
         setTimeout(() => {
           dispatch(LoginAction.setUsername(this.state.email)); // set username state to current username for later use
@@ -122,22 +118,25 @@ class Login extends Component {
         };
         //dispatch(LoginAction.setId(response.data.user.id));
         dispatch(LoginAction.setUserInfo(payload));
-        console.log('BEFORE GETTING IMAGE !!!');
-        await api.getImage(response.data.user.id, this.onHandleGetImage.bind(this))
+        console.log("BEFORE GETTING IMAGE !!!");
+        await api.getImage(
+          response.data.user.id,
+          this.onHandleGetImage.bind(this)
+        );
         if (this.state.isRemembered) {
           // if is remember is ticked
           console.log("REMBEMER IS TICKEDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
-          DataAsync.setData(
-            myLoginConstant.REMEMBER_EMAIL,
-            this.state.email
-          );
+          DataAsync.setData(myLoginConstant.REMEMBER_EMAIL, this.state.email);
           DataAsync.setData(myLoginConstant.REMEMBER_ACCOUNT, "true");
           DataAsync.setData(myLoginConstant.REMEMBER_ID, response.data.user.id);
           DataAsync.setData(
             myLoginConstant.REMEMBER_PASSWORD,
             this.state.password
           );
-          DataAsync.setData(myLoginConstant.REMEMBER_USERNAME, response.data.user.username);
+          DataAsync.setData(
+            myLoginConstant.REMEMBER_USERNAME,
+            response.data.user.username
+          );
           if (!StringUtil.isEmpty(response.data.token)) {
             console.log("response token: ", response.data.token);
             const token = "Bearer " + response.data.token;
@@ -169,8 +168,7 @@ class Login extends Component {
           ],
           { cancelable: false }
         );
-      }
-      else if (error.request.status === 500) {
+      } else if (error.request.status === 500) {
         Alert.alert(
           "Notification",
           "There is something wrong with our server. Sorry !",
@@ -185,8 +183,7 @@ class Login extends Component {
           ],
           { cancelable: false }
         );
-      }
-      else {
+      } else {
         Alert.alert(
           "Notification",
           "Unknown errors detected",
@@ -207,7 +204,7 @@ class Login extends Component {
 
   async onHandleGetImage(isSuccess, response, error) {
     if (isSuccess) {
-      console.log('response handle get image: ', response);
+      console.log("response handle get image: ", response);
       if (response.data.length === 0) {
         const image = [
           {
@@ -299,12 +296,20 @@ class Login extends Component {
     console.log("is login success ??", this.state.isLoginSuccess);
     console.log("ALOOOOOOOOOOOOOOOOOOOOOOOOOs");
     if (isRemembered === "true") {
+      const id = await DataAsync.getData(myLoginConstant.REMEMBER_ID);
       const { dispatch } = this.props;
+      // still need to get images
+      await api.getImage(
+        id,
+        this.onHandleGetImage.bind(this)
+      );
       setTimeout(() => {
         dispatch(LoginAction.setUsername(email)); // set username to current username for later use
       }, 200);
       dispatch(LoginAction.setToken(token));
-      dispatch(LoginAction.isLoginSuccess(true)); // set to true to move to Home
+      setTimeout(() => {
+        dispatch(LoginAction.isLoginSuccess(true)); // set to true to move to Home
+      }, 500);
     } else {
       DataAsync.removeData(myLoginConstant.REMEMBER_EMAIL);
       DataAsync.removeData(myLoginConstant.REMEMBER_ACCOUNT);
@@ -456,7 +461,17 @@ class Login extends Component {
                   disabled={false}
                   style={findButton}
                   onPress={() => {
-                    console.log("hit");
+                    Alert.alert(
+                      "Notification",
+                      "This function has not been supported yet !",
+                      [
+                        {
+                          text: "OK",
+                          style: "cancel"
+                        }
+                      ],
+                      { cancelable: false }
+                    );
                   }}
                   fontWeight="bold"
                 >
