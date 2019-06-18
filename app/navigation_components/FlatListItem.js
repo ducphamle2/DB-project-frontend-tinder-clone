@@ -124,18 +124,18 @@ class FlatListItem extends React.Component {
     }
   }
 
-  async swipeContact() {
+  async swipeContact(status) {
     const { trueData, trueIndex } = this.props;
     console.log("true data in swipe contact: ", trueData); // check the correct data in our array
     // check status to send to backend, can only be liked or unliked an user
-    if (this.state.status === "liked") {
+    if (status === "liked") {
       console.log("liked");
       const payload = {
         url: trueData[trueIndex].id,
         status: "liked"
       };
       await api.swipe(payload, this.onHandleSwipeContact.bind(this));
-    } else if (this.state.status === "unliked") {
+    } else if (status === "unliked") {
       console.log("unliekd");
       const payload = {
         url: trueData[trueIndex].id,
@@ -245,7 +245,9 @@ class FlatListItem extends React.Component {
                   },
                   {
                     text: "Yes",
-                    onPress: this.swipeContact
+                    onPress: () => {
+                      this.swipeContact("unliked")
+                    }
                   }
                 ],
                 { cancelable: true }
@@ -278,7 +280,9 @@ class FlatListItem extends React.Component {
                   },
                   {
                     text: "Yes",
-                    onPress: this.swipeContact
+                    onPress: () => {
+                      this.swipeContact("liked")
+                    }
                   }
                 ],
                 { cancelable: false }
